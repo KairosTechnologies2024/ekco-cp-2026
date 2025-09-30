@@ -1,0 +1,32 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+.customer-top-100-vehicle-alerts-card{
+
+    .top-100-alert-card{
+
+
+        display:flex;
+        gap:1rem;
+        align-items: center;
+        margin-bottom: 1rem;
+
+
+        .top-100-alert-card-details{
+
+
+            h3{
+                margin-bottom: 0.3rem;
+                font-size: 1rem;
+            }
+
+            p{
+                font-size: 1rem;
+            }
+            .top-100-alert-time{
+                font-size: 0.8rem;
+                color: var(--text-accent-color);
+            }
+        }
+    }
+}

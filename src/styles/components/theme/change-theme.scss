@@ -1,0 +1,28 @@
+@use '../../fragments/mixins.scss' as *;
+
+/* CHANGE THEME STYLES */
+
+
+
+.change-theme {
+ 
+    cursor: pointer;
+
+     
+    .change-theme-container{
+
+   
+    .change-theme-icon {
+        color:var(--change-theme-icon);
+        width: 2rem;
+        height: 2rem;
+       
+          @include  globalTransition;
+        &:hover {
+            transform: scale(1.1);
+            color:var(--change-theme-icon-hover);
+
+        } }
+
+    }
+}

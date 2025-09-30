@@ -1,0 +1,60 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+/* VEHICLE CARD STYLES */
+
+
+
+.customer-vehicle-card{
+
+ width: 400px;
+   height: 600px;
+    .customer-vehicle-card-container{
+
+          max-width: 400px;
+        
+             padding: 2rem;
+ 
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(var(--text-color), 0.1);
+
+    .vehicle-card-header{
+          height: 100px;
+          // background-color: red;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+        .vehicle-card-title{
+ margin-bottom: 1rem;
+        }
+       
+        .vehicle-card-header-icon{
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            height:100px;
+          
+        }
+    }
+
+
+    .vehicle-card-list{
+        max-height: 300px;
+        overflow-y: auto;
+        padding:2rem;
+        scrollbar-color: var(--text-color) var(--background-color);
+        .vehicle-card-item{
+            display: flex;
+            gap:1rem;
+            margin-bottom: 2rem;
+
+          
+            .vehicle-card-item-view-car-item{
+     @include globalButtonStyle;
+     margin-top: 1rem;
+   
+            }
+        }
+    }
+    }
+}

@@ -1,0 +1,117 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+
+.auth{
+
+       height: 100vh;
+         text-align: center;
+
+    .auth-container{
+
+
+
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--background-color);
+
+
+        .auth-header{
+            margin-bottom: 1rem;
+            color: var(--text-color);
+
+            .auth-title{
+                font-size: 2rem;
+                font-weight: 600;
+            }
+
+            .auth-subtitle{
+                font-size: 0.9rem;
+                      font-weight: 400;
+             
+            }
+        }
+
+        .auth-form{
+            width: 400px;
+           
+         
+          
+            color: var(--text-color);
+
+
+            .auth-form-group{
+
+                display:flex;
+                flex-direction: column;
+
+                input{
+                    width: 100%;
+                    padding: 0.7rem 0.5rem;
+                    margin-bottom: 0.8rem;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    background-color: transparent;
+                    color: var(--text-color);
+
+                    &::placeholder{
+                        color: rgb(184, 184, 184);
+                    }
+
+                    &:focus {
+                        border-color: var(--text-color);
+                        outline: none;
+                    }
+                }
+            }
+
+
+            .auth-footer{
+                button{
+                    @include globalButtonStyle;
+
+
+   width: 100%;
+   .auth-link{
+    color:#fff;
+
+     text-decoration: none;
+   }
+                  
+                 
+                  
+                }
+            }
+          
+        }
+            
+        }
+    }
+
+
+
+
+
+
+    select{
+
+        background-color: transparent;
+        color:#fff;
+        border-radius: 5px;
+        padding:0.2rem;
+        margin-bottom: 0.2rem;
+    
+    
+     &::placeholder{
+        color:#fff;
+     }
+    }
+
+    option{
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }

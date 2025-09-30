@@ -1,0 +1,94 @@
+/* IMPORTS */
+@use './fragments/colors.scss' as *;
+@use './fragments/mixins.scss' as *;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+
+
+:root {
+  --background-color: #20222b;
+  --text-color: #f1f2f6;
+  --text-muted: #b0b3b8;
+  --text-accent-color: #0057ff;
+}
+
+
+
+/* CSS RESET */
+
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  overflow-x: hidden;
+  width:100%;
+  overflow-y: auto;
+  position: relative;
+  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+* {
+  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+.global-margin {
+ position: absolute;
+    left: 270px;
+    top: 100px; 
+    width: calc(100% - 270px);
+    height: calc(100vh - 100px); 
+
+padding:1rem;
+    
+ 
+ 
+
+}
+
+
+
+.btn-load-more{
+
+  @include globalButtonStyle;
+  margin: 2rem 0rem;
+}
+
+/* RESPONSIVE STYLES */
+
+@media(max-width:950px){
+.global-margin{
+
+  left:200px;
+   width: calc(100% - 200px);
+}
+
+}
+@media(max-width:850px){
+.global-margin{
+   padding: 0rem 1rem 0rem 0rem;
+    margin-left: 1rem;
+}
+
+}
+
+
+@media (max-width: 760px) {
+
+.global-margin{
+
+  left:80px;
+   width: calc(100% - 80px);
+}
+
+}

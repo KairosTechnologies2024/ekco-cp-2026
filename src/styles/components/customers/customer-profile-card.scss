@@ -1,0 +1,61 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+
+
+/* CUSTOMER PROFILE CARD STYLES */
+
+.customer-profile-card{
+ width: 410px;
+
+  height: 600px;
+  
+.customer-profile-card-container{
+ 
+               .customer-profile-card-header{
+  // background-color: red;
+  // background-color: red;
+                height: 100px;
+                margin-bottom: 3rem;
+                  display:flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+               }
+    padding: 2rem;
+ 
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(var(--text-color), 0.1);
+         height: 600px;
+
+
+   
+
+    .user-profile-icon {
+        color: var(--text-color);
+        margin-bottom: 1rem;
+           height:100px;
+      
+    }
+
+    h2 {
+        margin-bottom: 1rem;
+        color: var(--text-color);
+        
+    }
+
+    p {
+        margin: 0.25rem 0;
+        color: var(--text-color);
+
+        span {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+    }
+}
+
+}
+
+
+

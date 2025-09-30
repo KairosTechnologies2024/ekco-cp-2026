@@ -1,0 +1,48 @@
+//COLOR VARIABLES
+
+/* CSS VARIABLES FOR THEMES */
+:root {
+  --background-color: #fff;
+  --text-color: #000;
+  --background-accent-color: #1d1d1b;
+  --text-accent-color: #b9b7b7;
+  --background-accent-color2: rgb(228, 228, 228);
+  --alert-card-hover-background: #101010;
+  --alert-card-background: #1d1d1b;
+  --change-theme-icon: orange;
+  --change-theme-icon-hover: yellow;
+  --alert-card-button :#fff;
+  --clear-notifications-brush:#fff;
+
+}
+
+body.dark-theme {
+  --change-theme-icon: orange;
+  --background-color: #101010;
+  --text-color: #fff;
+  --background-accent-color: #1d1d1b;
+  --text-accent-color: #b9b7b7;
+  --background-color-accent-2: #b9b7b7;
+  --alert-card-hover-background: #101010;
+  --alert-card-background: #1d1d1b;
+  --change-theme-icon: orange;
+  --change-theme-icon-hover: yellow;
+   --alert-card-button :#fff;
+   --clear-notifications-brush:#fff;
+
+ 
+}
+
+body.light-theme {
+  --background-color: #fff;
+  --text-color: #000;
+  --background-accent-color: #0f3054;
+  --text-accent-color: #979797;
+  --background-accent-color2: rgb(252, 252, 252);
+  --alert-card-hover-background: #fff;
+  --alert-card-background: rgb(236, 235, 235);
+  --change-theme-icon: #114d8d;
+  --change-theme-icon-hover: #0f3054;
+    --alert-card-button : #319795;
+       --clear-notifications-brush:#319795;
+}

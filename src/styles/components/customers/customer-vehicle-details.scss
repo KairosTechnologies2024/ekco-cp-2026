@@ -1,0 +1,54 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+
+.customer-vehicle-details-card{
+
+
+
+   
+   // background-color: red;
+
+
+   .customer-vehicle-details-card-container{
+
+    .customer-vehicle-details-col{
+        margin-bottom: 1rem;
+       
+        p{
+            margin:0.3rem 0;
+            font-size: 0.9rem;
+            font-weight: bolder;
+
+            span{
+                font-weight: 300;
+        
+            }
+        }
+    }
+
+
+.customer-vehicle-details-col:nth-child(2){
+
+    p:nth-child(4){
+        span{
+            color: rgb(255, 97, 97);
+        };
+}
+}
+
+    .customer-vehicle-details-col:nth-child(3){
+        p:nth-child(1){
+            span{
+                color: lime;
+            };
+        }
+
+        button{
+            margin-top: 1rem;
+            @include globalButtonStyle;
+            margin-inline-end: 1rem;
+        }
+    }
+   }
+}

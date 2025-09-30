@@ -1,0 +1,51 @@
+
+
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+
+.fleet-customer-card {
+   
+ 
+  margin-top: 2rem;
+  cursor: pointer;
+
+ /*  &:hover{
+
+     color: var(--text-accent-color);
+    @include globalTransition;
+  } */
+
+
+
+
+    
+    .fleet-customer-card-container{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr  ;
+        align-items: center;
+        width:100%;
+
+
+        .fleet-approval-actions{
+
+
+          display:flex;
+          align-items: center;
+          gap:1rem;
+         
+
+          .approve-button, .disapprove-button{
+
+            @include globalButtonStyle;
+            width:30%;
+        }
+        }
+  
+
+        
+    }
+        
+    
+    
+}

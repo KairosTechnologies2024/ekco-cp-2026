@@ -1,0 +1,70 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+
+/* ADD VEHICLE STYLES */
+
+
+.customer-add-vehicle-card{
+ width: 400px;
+   height: 600px;
+    .customer-add-vehicle-card-container{
+
+          max-width: 500px;
+          height: 500px;
+             padding: 2rem;
+ 
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(var(--text-color), 0.1);
+
+    .add-vehicle-card-header{
+    //     background-color: red;
+         margin-bottom: 3rem;
+          height: 100px;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+        .add-vehicle-card-title{
+ margin-bottom: 1rem;
+        }
+       
+        .add-vehicle-card-header-icon{
+            color: var(--text-color);
+            margin-bottom: 17rem;
+               height:100px;
+              
+        }
+    }
+
+.add-vehicle-card-contents{
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    label {
+        font-weight: bold;
+        color: var(--text-color);
+    }
+
+    input, select {
+        padding: 0.5rem;
+        border: 1px solid var(--text-color);
+        border-radius: 4px;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        width:100%;
+
+    &::placeholder {
+        color: var(--text-color);
+        opacity: 0.9;
+    }
+
+  
+}
+.add-vehicle-button{
+    @include globalButtonStyle;
+}
+
+}}};

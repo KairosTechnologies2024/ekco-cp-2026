@@ -1,0 +1,109 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+
+
+.devices-health-page{
+
+
+
+
+    .device-health-container{
+
+
+        .device-health-header{
+
+
+
+  
+
+
+            .device-health-header-1{
+ 
+            .filter-device-health{
+
+
+    padding: 0.4rem 0.2rem;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: 1px solid #dadada;
+    border-radius: 5px;
+    font-size: 0.8rem;
+       height: 38px;
+       margin-bottom: 2rem;
+  width:100%;
+    cursor: pointer;
+    @include globalTransition;
+    &:focus {
+        outline: none;
+       // border-color: var(--text-accent-color);
+    }
+}
+       
+
+             
+.devices-search-input-wrapper {
+          position: relative;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 50px;
+         
+        }
+
+        .devices-search-input {
+          padding-left: 2.2rem;
+          width: 100%;
+          height: 38px;
+          border-radius: 6px;
+          font-size: 1rem;
+          border: 1px solid #dadada;
+          background-color: transparent;
+          color: var(--text-color);
+   
+
+          &:focus {
+            outline: none;
+            border-color: var(--text-accent-color);
+          }
+        }
+
+        .devices-search-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          pointer-events: none;
+          z-index: 2;
+        }
+      
+
+            }
+
+
+            .device-health-header-2{
+
+    display: grid;
+        grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        width: 100%;
+
+        p{
+          text-transform: uppercase;
+          font-size: 0.7rem;
+          font-weight: bolder;
+        }
+                
+            }  
+
+
+          
+        }
+    }
+}
+
+
+
+  
+
+ 

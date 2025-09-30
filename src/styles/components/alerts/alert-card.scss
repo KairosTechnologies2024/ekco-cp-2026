@@ -1,0 +1,190 @@
+@use '../../fragments/mixins.scss' as *;
+
+@use '../../fragments/colors.scss' as *;
+
+
+/* ALERT CARD STYLES */
+
+@keyframes hazard-blink {
+  0% {
+    color: #ffd6d6;
+    text-shadow: 0 0 8px #ff2222, 0 0 2px #ff6666;
+  }
+  45% {
+    color: #ff3333;
+    text-shadow: 0 0 16px #ff0000, 0 0 4px #ffaaaa;
+  }
+  55% {
+    color: #b81414;
+    text-shadow: 0 0 12px #ff0000, 0 0 2px #ff7272;
+  }
+  100% {
+    color: #ffd6d6;
+    text-shadow: 0 0 8px #ff2222, 0 0 2px #ff6666;
+  }
+}
+
+.hazard-blink {
+  animation: hazard-blink 1s infinite alternate cubic-bezier(0.7,0,0.3,1);
+}
+
+ .new-alert {
+  position: relative;
+//  color:red;
+  color: #c62828 !important; 
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: red;
+    border-radius: 3px 0 0 3px;
+  }
+}
+.alert-card{
+
+
+ 
+
+
+    background-color: var(--alert-card-background);
+    margin-bottom: 0.5rem;
+    display: grid;
+    grid-template-columns: 3fr 2fr 1fr 1fr;
+    align-items: center;
+    padding: 1rem 0rem;
+    gap: 1rem;
+    cursor: pointer;
+
+
+    .alert-column-1{
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+
+        .alert-icon{
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+       
+    
+            
+            font-size: 2rem;
+        }
+
+
+        .alert-meta{
+
+            .alert-title{
+                font-size: 0.9rem;
+                margin-bottom: 0.2rem;
+            }
+            .alert-time{
+                font-size: 0.8rem;
+            }
+        }
+    }
+
+
+    .alert-column-2{
+        font-size: 0.7rem;
+        min-width: 0;
+        word-break: break-word;
+             font-weight: 300;
+    }
+    .alert-column-3{
+        font-size: 0.7rem;
+        font-weight: 300;
+      
+    
+    }
+
+    .alert-column-4{
+        display: flex;
+        justify-content: flex-end;
+        .alert-btn{
+            @include globalButtonStyle;
+
+            background-color: var(--alert-card-button) !important;
+            color: var(--background-color) !important;
+            margin-right: 1rem;
+            z-index: 100;
+          
+
+            &:hover {
+                background-color: var(--background-color) !important;
+                color: var(--text-color) !important;
+                outline: 1px solid var(--text-color) !important;
+            }
+        }
+    }
+
+    &:hover{
+        background-color: var(--alert-card-hover-background);
+        @include globalTransition;
+
+ 
+    }}
+
+
+
+
+
+
+
+
+
+
+.alert-card.hazard-soft,  .alert-card.hazard-soft-bg-blink {
+  color: #fff !important;
+
+
+
+     
+  
+}
+
+
+
+
+
+    @media(max-width:690px){
+
+
+.alert-card{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+text-align: center;
+    .alert-column-1{
+
+        .alert-icon{
+            display:none;
+        }
+    }
+}
+
+    }
+
+
+
+
+@keyframes hazard-soft-bg-blink {
+  0%, 100% { background: #fff; }
+  50% { background: #ffd6d6; }
+}
+.hazard-soft {
+
+  animation: hazard-soft-bg-blink 1.2s infinite alternate cubic-bezier(0.6,0.1,0.4,1) !important;
+}
+.hazard-soft-title {
+  color: #c62828 !important; 
+  text-shadow: none !important;
+  font-weight: 600;
+}

@@ -1,0 +1,22 @@
+.customer-vehicle-page{
+
+
+
+    display:flex;
+
+    align-items: center;
+    justify-content: center;
+   
+    overflow-y: scroll;
+    gap:2rem;
+    margin:  auto;
+ 
+  
+
+    .customer-vehicle-top-100-container{
+
+margin-top: 2rem;
+        height:300px;
+        overflow-y: scroll;
+    }
+}

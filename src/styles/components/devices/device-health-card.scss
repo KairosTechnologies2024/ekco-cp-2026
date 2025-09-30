@@ -1,0 +1,15 @@
+.device-health-card{
+
+
+    margin-top: 1rem;
+    .device-health-card-items{
+  display:grid;
+   grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        .device-health-card-item{
+  
+
+            font-size: 0.8rem;
+
+        }
+    }
+}

@@ -1,0 +1,105 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+
+.confirmation-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.confirmation-dialog {
+  background-color: var(--background-color);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  padding: 1.5rem 2rem;
+  box-sizing: border-box;
+  transform: scale(0.8);
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+
+  &.active {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .confirmation-dialog-header {
+    display: flex;
+    justify-content: flex-end;
+
+    .close-button {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: color-mix(in srgb, var(--text-color) 10%, transparent);
+      }
+    }
+  }
+
+  .confirmation-dialog-message {
+    margin: 1rem 0;
+    color: var(--text-color);
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .confirmation-dialog-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
+
+    button {
+      padding: 0.5rem 1.5rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &.cancel-button {
+        background-color: var(--background-color);
+        color: var(--text-muted);
+        border: 1px solid var(--text-muted);
+
+        &:hover {
+          background-color: var(--text-muted);
+          color: var(--background-color);
+        }
+      }
+
+      &.confirm-button {
+        background-color: var(--text-accent-color);
+        color: var(--background-color);
+
+        &:hover {
+          background-color: grey;
+        }
+      }
+    }
+  }
+}

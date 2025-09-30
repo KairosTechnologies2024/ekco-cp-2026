@@ -1,0 +1,68 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+
+
+
+/* CUSTOMER CARD STYLES */
+
+
+
+
+
+.customer-card {
+   
+
+
+  margin-top: 2rem;
+  cursor: pointer;
+
+  &:hover{
+
+     color: var(--text-accent-color);
+    @include globalTransition;
+  }
+
+ .edit-button {
+        @include globalButtonStyle;
+       width:35%;
+        padding:0.5rem;
+
+
+           display:flex;
+        justify-content: center;
+        align-items: center;
+
+        svg {
+            font-size: 1.1rem;
+        }
+    }
+
+
+    .delete-button {
+        @include globalButtonStyle;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--text-color);
+        background-color: rgb(255, 87, 87);
+        color:white;
+        width:35%;
+        padding:0.5rem;
+
+        svg {
+            font-size: 1.1rem;
+        }
+    }
+    
+    .customer-card-container{
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr ;
+        align-items: center;
+        width:100%;
+        &.edit-mode {
+    grid-template-columns: repeat(5, 1fr);
+  }
+    
+    }
+}

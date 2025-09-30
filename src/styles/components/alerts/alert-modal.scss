@@ -1,0 +1,142 @@
+@use '../../fragments/mixins.scss' as *;
+
+.alert-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;  // Increased z-index
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.alert-modal {
+
+
+.alert-modal-footer {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid color-mix(in srgb, var(--text-color) 10%, transparent);
+    width: 100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    
+    .profile-button {
+      @include globalButtonStyle;
+       width:80%;
+       margin-bottom: 1rem;
+   
+    }
+  }
+
+
+  background-color: var(--background-color);
+  border-radius: 12px;
+  width: 500px;
+  min-width: 500px;
+  max-height: 80vh;  // Maximum height relative to viewport
+  overflow: hidden;  // Hide overflow on main container
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--text-color) 20%, transparent);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;  // Added for proper content flow
+
+  &.active {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .alert-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-shrink: 0;  // Prevent header from shrinking
+
+    h2 {
+      font-size: 1.5rem;
+      color: var(--text-color);
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: color-mix(in srgb, var(--text-color) 10%, transparent);
+      }
+    }
+  }
+
+  .alert-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;  // Scroll only content
+    flex: 1;  // Take remaining space
+
+    .alert-section {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1rem;
+      background-color: color-mix(in srgb, var(--background-accent-color) 5%, transparent);
+      border-radius: 8px;
+
+      .alert-icon {
+        min-width: 24px;
+        font-size: 1.25rem;
+        color: var(--text-accent-color);
+      }
+
+      .alert-datetime {
+        width: 100%;
+        padding-left: 2.25rem;  // Align with other sections
+      }
+
+      h3 {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+      }
+
+      p {
+        color: var(--text-color);
+        font-size: 1rem;
+        line-height: 1.4;
+      }
+    }
+
+    .alert-type {
+      background-color: color-mix(in srgb, var(--text-accent-color) 10%, transparent);
+    }
+  }
+
+  @media (max-width: 600px) {
+    width: 90%;
+    min-width: auto;
+  }
+}

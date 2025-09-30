@@ -1,0 +1,29 @@
+@use '../../fragments/colors.scss' as *;
+@use '../../fragments/mixins.scss' as *;
+
+.linked-device-card{
+display:grid;
+
+
+grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+
+margin-top: 2rem;
+
+
+
+p{
+       font-size: 0.8rem;
+}
+    .linked-device-item-button{
+     
+
+
+     
+
+
+            @include globalButtonStyle;
+           width:50%;
+
+
+    }
+}
