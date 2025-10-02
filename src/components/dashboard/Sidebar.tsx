@@ -21,6 +21,7 @@ import { setCustomersData, setCustomerCount } from '../../store/redux/customersS
 import { setAlerts, type Alert as AlertModel } from '../../store/redux/alertsSlice';
 import { useGetCustomersQuery, useGetAllAlertsQuery } from '../../utils/api';
 import speechService from '../../utils/speech';
+import { namesVerification } from '../../utils/namesVerification';
 
 
 function Sidebar() {
@@ -69,46 +70,36 @@ function Sidebar() {
 
   let email = '';
   let avatarLetter = 'U';
+  let avatarLetterTwo = 'U';
   let displayName = 'User';
   try {
-  const persisted = localStorage.getItem('persist:user');
-  if (persisted) {
-    const parsed = JSON.parse(persisted);
-    const userData = JSON.parse(parsed.user); 
+    const persisted = localStorage.getItem('persist:user');
+    if (persisted) {
+      const parsed = JSON.parse(persisted);
+      const userData = JSON.parse(parsed.user);
 
-    console.log('this is email', userData.email);
+      console.log('this is email', userData.email);
 
-    if (userData && userData.email) {
-      email = userData.email || '';
-      avatarLetter = (email[0]?.toUpperCase() ?? 'U').toString();
+      if (userData && userData.email) {
+        email = userData.email || '';
+        avatarLetter = (email[0]?.toUpperCase() ?? 'U').toString();
+        avatarLetterTwo = (email[1]?.toUpperCase() ?? 'U').toString();
 
+        displayName = namesVerification(email);
 
-   
+        if (avatarLetter === 'A') {
+          avatarLetter = 'S'; // S for Admin email, which Sanele is using
+        }
 
-   const generateName = () => {
-    if(avatarLetter === 'A') return 'Sanele';   // A for admin email, which Sanele is using
-    else if(avatarLetter === 'N') return 'Ndabz'; // N for Ndabz email
-    else if(avatarLetter === 'W') return 'Wasim';  // W for Wasmin email
-    else if(avatarLetter === 'T') return 'Tasvir'; // T for Tasvir email
-    else if(avatarLetter === 'B') return 'Blessing'; // B for Blessing email
-    else if(avatarLetter === 'M') return 'Mikhail'; // M for Mikhail email
-    else if (avatarLetter === 'L') return 'Leeroy'; // L for Leeroy email
-    return 'User';
-   };
-
-       displayName  =  generateName();
-
-         if(avatarLetter === 'A'){
-
-   avatarLetter= 'S'   // S for Admin email, which Sanele is using
+        if (avatarLetterTwo === 'H') {
+          avatarLetterTwo = 'N';
+        }
       }
-
     }
+  } catch (e) {
+    console.error('Failed to parse persisted user:', e);
+    // fallback to default values
   }
-} catch (e) {
-  console.error('Failed to parse persisted user:', e);
-  // fallback to default values
-}
 
 
 
@@ -332,7 +323,7 @@ function Sidebar() {
         <div className="sidebar-footer-container">
           <div className="sidebar-user">
             <div className="avatar-tooltip-wrapper">
-              <div className="sidebar-user-avatar">{avatarLetter}</div>
+              <div className="sidebar-user-avatar">{avatarLetter || avatarLetterTwo}</div>
               <span className="sidebar-user-avatar-name">{displayName}</span>
             </div>
           </div>

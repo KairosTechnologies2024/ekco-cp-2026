@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 
 import AlertsPage from "./pages/alerts/alerts";
 import Auth from "./components/auth/Auth";
+import OtpVerification from "./components/auth/OtpVerification";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
 import CustomersPage from "./pages/customers/customers";
@@ -44,6 +45,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/auth" />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/otp" element={<OtpVerification />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Navigate to="/dashboard/alerts" />} />

@@ -219,7 +219,7 @@ function CustomerList() {
           {(isLoading) ? (
 
          <GlobalLoader/>
-          ) : error ? (
+          ) : error && !isLoading ? (
                 <GlobalError errorMessage={errorMessage}/>
           ) : filteredCustomers.length === 0 ? (
             <div className="customers-no-results">

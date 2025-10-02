@@ -1,37 +1,131 @@
 
 import "../../../styles/components/customers/register-customer.scss";
 import { useBreadcrumbs } from "../../../store/context/BreadcrumbsContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useGetCustomerQuery, useUpdateCustomerMutation } from "../../../utils/api";
+import GlobalLoader from "../../../components/global loader/GlobalLoader";
+import GlobalError from "../../../components/global error/GlobalError";
+import toast from "react-hot-toast";
+import { MoonLoader } from "react-spinners";
 function EditCustomer() {
  const { setBreadcrumbs } = useBreadcrumbs();
+ const { id } = useParams();
+ const { data, error, isLoading } = useGetCustomerQuery(id || '');
+ const [updateCustomer, { isLoading: isUpdating }] = useUpdateCustomerMutation();
+const [isHovered, setIsHovered] = useState(false);
+ const [formData, setFormData] = useState({
+  firstName: '',
+  lastName: '',
+  idNumber: '',
+  email: '',
+  phoneNumber: '',
+  nextOfKin: '',
+  nextOfKinNumber: '',
+  passportNumber: '',
+  policyNumber: '',
+  postalCode: '',
+  address1: '',
+  address2: '',
+  city: '',
+  province: '',
+  clientPassword: '',
+  initiatorName: '',
+ });
+
+ useEffect(() => {
+  if (data?.user) {
+    const user = data.user;
+    setFormData({
+      firstName: user.first_name || '',
+      lastName: user.last_name || '',
+      idNumber: user.id_number || user.id_num || '',
+      email: user.email || '',
+      phoneNumber: user.phone_number || '',
+      nextOfKin: user.next_of_kin || user.next_of_keen_name || '',
+      nextOfKinNumber: user.next_of_kin_number || user.next_of_keen_number || '',
+      passportNumber: user.passport_number || '',
+      policyNumber: user.policy_number || '',
+      postalCode: user.postal_code || '',
+      address1: user.address_line1 || user.address1 || '',
+      address2: user.address_line2 || user.address2 || '',
+      city: user.city || '',
+      province: user.province || '',
+      clientPassword: user.client_password || '',
+      initiatorName: user.initiator_name || '',
+    });
+  }
+  }, [data]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id) return;
+
+    const updateData = {
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      id_number: formData.idNumber,
+      email: formData.email,
+      phone_number: formData.phoneNumber,
+      next_of_kin: formData.nextOfKin,
+      next_of_kin_number: formData.nextOfKinNumber,
+      passport_number: formData.passportNumber,
+      policy_number: formData.policyNumber,
+      postal_code: formData.postalCode,
+      address_line1: formData.address1,
+      address_line2: formData.address2,
+      city: formData.city,
+      province: formData.province,
+      client_password: formData.clientPassword,
+      initiator_name: formData.initiatorName,
+    };
+
+    try {
+      await updateCustomer({
+        userId: id,
+        customerId: data?.user.id || '',
+        data: updateData,
+      }).unwrap();
+      toast.success('customer updated successfully')
+     
+    } catch (err) {
+      console.error('Update failed:', err);
+     toast.error('Failed to update customer')
+    }
+  };
 
   useEffect(() => {
     setBreadcrumbs([
       { label: 'Dashboard', path: '/dashboard' },
       { label: 'Customers', path: '/dashboard/customers' },
-   
+
       { label: 'Edit', path: '/dashboard/customers/edit' },
     ]);
   }, []);
 
+  if (isLoading) {
+    return <GlobalLoader />;
+  }
+
+  if (error) {
+    return <GlobalError errorMessage="Error loading customer data..." />;
+  }
+
   return (
     <section className="register-customer global-margin">
    {/*    <h2 className="register-customer-title">Register New Customer</h2> */}
-      
-      <form className="register-customer-form" onSubmit={(e) => {
-        e.preventDefault();
-    
-      }}>
+
+      <form className="register-customer-form" onSubmit={handleSubmit}>
         <div className="form-grid">
           <div className="form-group">
             <label htmlFor="firstName">First Name</label>
             <input
               type="text"
               id="firstName"
-              value={'John'}
+              value={formData.firstName}
               name="firstName"
               placeholder="Enter First Name"
-        
+              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
               required
             />
           </div>
@@ -41,10 +135,10 @@ function EditCustomer() {
             <input
               type="text"
               id="lastName"
-                   value={'Doe'}
+              value={formData.lastName}
               name="lastName"
               placeholder="Enter Last Name"
-       
+              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
               required
             />
           </div>
@@ -54,10 +148,10 @@ function EditCustomer() {
             <input
               type="text"
               id="idNumber"
-                   value={'8659094830583408'}
+              value={formData.idNumber}
               name="idNumber"
               placeholder="Enter ID Number"
-         
+              onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
               required
             />
           </div>
@@ -79,11 +173,11 @@ function EditCustomer() {
             <label htmlFor="phoneNumber">Phone Number</label>
             <input
               type="tel"
-                 value={'0123456789'}
+              value={formData.phoneNumber}
               id="phoneNumber"
               name="phoneNumber"
               placeholder="Enter Phone Number"
-        
+              onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
               required
             />
           </div>
@@ -92,11 +186,11 @@ function EditCustomer() {
             <label htmlFor="nextOfKin">Next of Kin</label>
             <input
               type="text"
-                value={'Karen Khumalo'}
+              value={formData.nextOfKin}
               id="nextOfKin"
               name="nextOfKin"
               placeholder="Enter Next of Kin"
-      
+              onChange={(e) => setFormData({ ...formData, nextOfKin: e.target.value })}
               required
             />
           </div>
@@ -106,10 +200,10 @@ function EditCustomer() {
             <input
               type="tel"
               id="nextOfKinNumber"
-                     value={'0123456789'}
+              value={formData.nextOfKinNumber}
               name="nextOfKinNumber"
               placeholder="Enter Next of Kin Number"
-        
+              onChange={(e) => setFormData({ ...formData, nextOfKinNumber: e.target.value })}
               required
             />
           </div>
@@ -119,10 +213,10 @@ function EditCustomer() {
             <input
               type="text"
               id="passportNumber"
-                     value={'893207432759347'}
+              value={formData.passportNumber}
               name="passportNumber"
               placeholder="Enter Passport Number"
-         
+              onChange={(e) => setFormData({ ...formData, passportNumber: e.target.value })}
             />
           </div>
 
@@ -130,11 +224,11 @@ function EditCustomer() {
             <label htmlFor="policyNumber">Policy Number</label>
             <input
               type="text"
-                 value={'8924'}
+              value={formData.policyNumber}
               id="policyNumber"
               name="policyNumber"
               placeholder="Enter Policy Number"
-     
+              onChange={(e) => setFormData({ ...formData, policyNumber: e.target.value })}
               required
             />
           </div>
@@ -144,10 +238,10 @@ function EditCustomer() {
             <input
               type="text"
               id="postalCode"
-                 value={'8260'}
+              value={formData.postalCode}
               name="postalCode"
               placeholder="Enter Postal Code"
-    
+              onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
               required
             />
           </div>
@@ -157,10 +251,10 @@ function EditCustomer() {
             <input
               type="text"
               id="address1"
-                    value={'18 Ridge Road'}
+              value={formData.address1}
               name="address1"
               placeholder="Enter Address Line 1"
-       
+              onChange={(e) => setFormData({ ...formData, address1: e.target.value })}
               required
             />
           </div>
@@ -170,10 +264,10 @@ function EditCustomer() {
             <input
               type="text"
               id="address2"
-                      value={'328 Nana Sita'}
+              value={formData.address2}
               name="address2"
               placeholder="Enter Address Line 2"
-     
+              onChange={(e) => setFormData({ ...formData, address2: e.target.value })}
             />
           </div>
 
@@ -182,10 +276,10 @@ function EditCustomer() {
             <input
               type="text"
               id="city"
-                 value={'Durban'}
+              value={formData.city}
               name="city"
               placeholder="Enter City"
- 
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
               required
             />
           </div>
@@ -194,11 +288,11 @@ function EditCustomer() {
             <label htmlFor="province">Province</label>
             <input
               type="text"
-                      value={'Kwazulu Natal'}
+              value={formData.province}
               id="province"
               name="province"
               placeholder="Enter Province"
-           
+              onChange={(e) => setFormData({ ...formData, province: e.target.value })}
               required
             />
           </div>
@@ -208,10 +302,10 @@ function EditCustomer() {
             <input
               type="password"
               id="clientPassword"
-               value={'########'}
+              value={formData.clientPassword}
               name="clientPassword"
               placeholder="Enter Client Password"
-             
+              onChange={(e) => setFormData({ ...formData, clientPassword: e.target.value })}
               required
             />
           </div>
@@ -221,24 +315,27 @@ function EditCustomer() {
             <input
               type="text"
               id="initiatorName"
-              
-                 value={'Sanele'}
-        
-        
+              value={formData.initiatorName}
               name="initiatorName"
               placeholder="Enter Initiator Name"
-             
+              onChange={(e) => setFormData({ ...formData, initiatorName: e.target.value })}
               required
             />
           </div>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="register-button"
-       
+          disabled={isUpdating}
+           onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
         >
-       Update Customer
+          {isUpdating
+                ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '18px' }}>
+                    <MoonLoader color={isHovered ? 'white' : 'black'} size={16} />
+                  </span>
+                : 'Update Customer'}
         </button>
       </form>
     </section>

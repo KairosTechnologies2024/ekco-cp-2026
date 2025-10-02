@@ -32,6 +32,13 @@ interface User {
   next_of_keen_number: string | null;
 }
 
+interface UserProfile {
+  id: string;
+  email: string;
+  user_type: string;
+  twofa_enabled: boolean;
+}
+
 interface Alert {
   id: string;
   time: string;
@@ -65,11 +72,18 @@ export const authApi = createApi({
   }),
   tagTypes: ['Customers'],
   endpoints: (builder) => ({
-    login: builder.mutation<{ user: any; accessToken: string; refreshToken: string }, { email: string; password: string }>({
+    login: builder.mutation<{ user?: any; accessToken?: string; refreshToken?: string; otpSent?: boolean; userId?: string; message?: string }, { email: string; password: string }>({
       query: (credentials) => ({
         url: 'users/login',
         method: 'POST',
         body: credentials,
+      }),
+    }),
+    verifyOtp: builder.mutation<{ accessToken: string; refreshToken: string; message: string }, { userId: string; token: string }>({
+      query: (body) => ({
+        url: 'users/verify-2fa',
+        method: 'POST',
+        body,
       }),
     }),
     resetPassword: builder.mutation<any, { email?: string; token?: string; newPassword?: string }>({
@@ -106,6 +120,21 @@ export const authApi = createApi({
         method: 'GET',
       }),
       providesTags: [{ type: 'Customers', id: 'SINGLE' }],
+    }),
+    updateCustomer: builder.mutation<{ message: string }, { userId: string; customerId: string; data: Partial<User> }>({
+      query: ({ userId, customerId, data }) => ({
+        url: `customers/customer/${userId}/${customerId}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'Customers', id: 'LIST' }, { type: 'Customers', id: 'SINGLE' }],
+    }),
+    deleteCustomer: builder.mutation<{ message: string }, { userId: string; customerId: string }>({
+      query: ({ userId, customerId }) => ({
+        url: `customers/customer/${userId}/${customerId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Customers', id: 'LIST' }, { type: 'Customers', id: 'SINGLE' }],
     }),
     getCustomerVehicles: builder.query<{ vehicles: Array<{ id: string; make: string; vehicle_model: string; year: string; package: string; device_serial: string }> }, string>({
       query: (userId) => ({
@@ -151,7 +180,27 @@ export const authApi = createApi({
         body: { id },
       }),
     }),
+    enable2FA: builder.mutation<any, { userId: string }>({
+      query: (body) => ({
+        url: 'users/enable-2fa',
+        method: 'POST',
+        body,
+      }),
+    }),
+    disable2FA: builder.mutation<any, { userId: string }>({
+      query: (body) => ({
+        url: 'users/disable-2fa',
+        method: 'POST',
+        body,
+      }),
+    }),
+    getUserProfile: builder.query<UserProfile, string>({
+      query: (id) => ({
+        url: `users/${id}`,
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRefreshTokenMutation, useResetPasswordMutation, useForgotPasswordMutation, useGetCustomersQuery, useGetCustomerQuery, useGetCustomerVehiclesQuery, useGetSpeedQuery, useGetIgnitionQuery, useGetGpsQuery, useGetAlertsBySerialQuery, useGetAllAlertsQuery, useMarkAlertSyncedMutation } = authApi;
+export const { useLoginMutation, useVerifyOtpMutation, useRefreshTokenMutation, useResetPasswordMutation, useForgotPasswordMutation, useGetCustomersQuery, useGetCustomerQuery, useUpdateCustomerMutation, useDeleteCustomerMutation, useGetCustomerVehiclesQuery, useGetSpeedQuery, useGetIgnitionQuery, useGetGpsQuery, useGetAlertsBySerialQuery, useGetAllAlertsQuery, useMarkAlertSyncedMutation, useEnable2FAMutation, useDisable2FAMutation, useGetUserProfileQuery } = authApi;

@@ -28,7 +28,7 @@ class GlobalError extends React.Component<Props, ErrorBoundaryState> {
   render() {
     if (this.state.hasError || !this.props.children) {
       return (
-        <div className="global-margin" style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
+        <div style={{display:'flex', justifyContent:'center', alignItems:'center',     height: '60vh'}}>
           <p>{this.props.errorMessage}</p>
         </div>
       );

@@ -1,19 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import CustomerCard from './CustomerCard';
 import { IoIosSearch } from "react-icons/io";
 import '../../styles/components/customers/customers.scss';
 import { useCustomers } from '../../store/context/CustomersContext';
 
 import { useBreadcrumbs } from '../../store/context/BreadcrumbsContext';
+import { useGetCustomersQuery } from '../../utils/api';
+import { useDispatch } from 'react-redux';
+import { setCustomerCount, setCustomersData } from '../../store/redux/customersSlice';
+import GlobalLoader from '../global loader/GlobalLoader';
+import GlobalError from '../global error/GlobalError';
+
 function DeleteCustomerList() {
-      const { isDeleteMode, setIsDeleteMode } = useCustomers();
+    const { isDeleteMode, setIsDeleteMode } = useCustomers();
     const [search, setSearch] = useState('');
+    const [itemsToShow, setItemsToShow] = useState(100);
 
+    const { setBreadcrumbs } = useBreadcrumbs();
+    const { data, error, isLoading, refetch } = useGetCustomersQuery();
+    const dispatch = useDispatch();
+    let errorMessage = 'Error loading customers...';
 
-
-     const { setBreadcrumbs } = useBreadcrumbs();
-    
-      useEffect(() => {
+    useEffect(() => {
         setBreadcrumbs([
             { label: 'Dashboard', path: '/dashboard' },
             { label: 'Customers', path: '/dashboard/customers' },
@@ -25,42 +33,157 @@ function DeleteCustomerList() {
         return () => setIsDeleteMode(false); // Optional cleanup on unmount
     }, []);
 
+    // Log data retrieval status and store data in Redux
+    useEffect(() => {
+        console.log('Customer data retrieval status:');
+        console.log('isLoading:', isLoading);
+        console.log('error:', error);
+        console.log('data:', data);
+        if (data) {
+            console.log('regularCustomers:', data.regularCustomers);
+            console.log('fleetCustomers:', data.fleetCustomers);
+            // Store customers data in Redux
+            dispatch(setCustomersData({
+                regularCustomers: (data.regularCustomers || []).map((c: any) => ({
+                    idNumber: c.id_number || c.idNum || c.id_num || '',
+                    firstName: c.first_name || '',
+                    lastName: c.last_name || '',
+                    customerType: c.user_type || c.customerType || '',
+                    addressLine1: c.address_line_1 || '',
+                    addressLine2: c.address_line_2 || '',
+                    city: c.city || '',
+                    clientPassword: c.client_password || '',
+                    email: c.email || '',
+                    initiatorName: c.initiator_name || '',
+                    isActive: c.is_active || false,
+                    nextOfKin: c.next_of_kin || '',
+                    nextOfKinNumber: c.next_of_kin_number || '',
+                    passportNumber: c.passport_number || '',
+                    phoneNumber: c.phone_number || '',
+                    policyNumber: c.policy_number || '',
+                    postalCode: c.postal_code || '',
+                    profilePicture: c.profile_picture || '',
+                    province: c.province || '',
+                    userId: c.user_id || '',
+                    databaseLocation: c.database_location || '',
+                    firebaseAI: c.firebase_ai || ''
+                })),
+                fleetCustomers: (data.fleetCustomers || []).map((c: any) => ({
+                    idNumber: c.id_number || c.idNum || c.id_num || '',
+                    firstName: c.first_name || '',
+                    lastName: c.last_name || '',
+                    customerType: c.user_type || c.customerType || '',
+                    addressLine1: c.address_line_1 || '',
+                    addressLine2: c.address_line_2 || '',
+                    city: c.city || '',
+                    clientPassword: c.client_password || '',
+                    email: c.email || '',
+                    initiatorName: c.initiator_name || '',
+                    isActive: c.is_active || false,
+                    nextOfKin: c.next_of_kin || '',
+                    nextOfKinNumber: c.next_of_kin_number || '',
+                    passportNumber: c.passport_number || '',
+                    phoneNumber: c.phone_number || '',
+                    policyNumber: c.policy_number || '',
+                    postalCode: c.postal_code || '',
+                    profilePicture: c.profile_picture || '',
+                    province: c.province || '',
+                    userId: c.user_id || '',
+                    databaseLocation: c.database_location || '',
+                    firebaseAI: c.firebase_ai || ''
+                }))
+            }));
+        }
+    }, [data, error, isLoading, dispatch]);
 
+    // Combine regular and fleet customers from API data
+    const allCustomers = useMemo(() => {
+        if (!data) return [];
+        const regular = (data.regularCustomers || []).map((c: any) => ({
+            idNumber: c.id_number || c.idNum || c.id_num || '',
+            firstName: c.first_name || '',
+            lastName: c.last_name || '',
+            customerType: c.user_type || c.customerType || '',
+            addressLine1: c.address_line_1 || '',
+            addressLine2: c.address_line_2 || '',
+            city: c.city || '',
+            clientPassword: c.client_password || '',
+            email: c.email || '',
+            initiatorName: c.initiator_name || '',
+            isActive: c.is_active || false,
+            nextOfKin: c.next_of_kin || '',
+            nextOfKinNumber: c.next_of_kin_number || '',
+            passportNumber: c.passport_number || '',
+            phoneNumber: c.phone_number || '',
+            policyNumber: c.policy_number || '',
+            postalCode: c.postal_code || '',
+            profilePicture: c.profile_picture || '',
+            province: c.province || '',
+            userId: c.user_id || '',
+            id: c.id || '',
+            databaseLocation: c.database_location || '',
+            firebaseAI: c.firebase_ai || ''
+        }));
+        const fleet = (data.fleetCustomers || []).map((c: any) => ({
+            idNumber: c.id_number || c.idNum || c.id_num || '',
+            firstName: c.first_name || '',
+            lastName: c.last_name || '',
+            customerType: c.user_type || c.customerType || '',
+            addressLine1: c.address_line_1 || '',
+            addressLine2: c.address_line_2 || '',
+            city: c.city || '',
+            clientPassword: c.client_password || '',
+            email: c.email || '',
+            initiatorName: c.initiator_name || '',
+            isActive: c.is_active || false,
+            nextOfKin: c.next_of_kin || '',
+            nextOfKinNumber: c.next_of_kin_number || '',
+            passportNumber: c.passport_number || '',
+            phoneNumber: c.phone_number || '',
+            policyNumber: c.policy_number || '',
+            postalCode: c.postal_code || '',
+            profilePicture: c.profile_picture || '',
+            province: c.province || '',
+            userId: c.user_id || '',
+            id: c.id || '',
+            databaseLocation: c.database_location || '',
+            firebaseAI: c.firebase_ai || ''
+        }));
+        const combined = [...regular, ...fleet];
+        // Filter out customers with any empty fields
+        const filtered = combined.filter(customer =>
+            customer.idNumber !== '' &&
+            customer.firstName !== '' &&
+            customer.lastName !== '' &&
+            customer.customerType !== ''
+        );
+        // Filter out duplicates by idNumber only
+        const uniqueCustomers: any[] = [];
+        const seenIdNumbers = new Set();
 
-    const customers = [
-        { idNumber: "1007657650001", firstName: "John", lastName: "Doe", customerType: "Regular" },
-        { idNumber: "1000007870002", firstName: "Jane", lastName: "Smith", customerType: "Fleet" },
-        { idNumber: "100000655463", firstName: "Michael", lastName: "Brown", customerType: "Regular" },
-        { idNumber: "1007567653004", firstName: "Emily", lastName: "Johnson", customerType: "Fleet" },
-        { idNumber: "1006765756005", firstName: "David", lastName: "Williams", customerType: "Regular" },
-        { idNumber: "1000000000006", firstName: "Sarah", lastName: "Jones", customerType: "Fleet" },
-        { idNumber: "1000000000007", firstName: "Daniel", lastName: "Garcia", customerType: "Regular" },
-        { idNumber: "1000078687008", firstName: "Emma", lastName: "Martinez", customerType: "Fleet" },
-        { idNumber: "1000565656509", firstName: "Matthew", lastName: "Miller", customerType: "Regular" },
-        { idNumber: "1000000000010", firstName: "Olivia", lastName: "Davis", customerType: "Fleet" },
-        { idNumber: "1000354400011", firstName: "James", lastName: "Rodriguez", customerType: "Regular" },
-        { idNumber: "1000000000012", firstName: "Sophia", lastName: "Hernandez", customerType: "Fleet" },
-        { idNumber: "1000000000013", firstName: "Benjamin", lastName: "Lopez", customerType: "Regular" },
-        { idNumber: "1000675676514", firstName: "Grace", lastName: "Gonzalez", customerType: "Fleet" },
-        { idNumber: "1000000000015", firstName: "Jack", lastName: "Wilson", customerType: "Regular" },
-        { idNumber: "1000000000016", firstName: "Chloe", lastName: "Anderson", customerType: "Fleet" },
-        { idNumber: "1008787878717", firstName: "Lucas", lastName: "Thomas", customerType: "Regular" },
-        { idNumber: "1000000000018", firstName: "Mia", lastName: "Taylor", customerType: "Fleet" },
-        { idNumber: "1000000000019", firstName: "Henry", lastName: "Moore", customerType: "Regular" },
-        { idNumber: "1000000000020", firstName: "Ella", lastName: "Jackson", customerType: "Fleet" }
-    ];
+        for (const customer of filtered) {
+            if (!seenIdNumbers.has(customer.idNumber)) {
+                uniqueCustomers.push(customer);
+                seenIdNumbers.add(customer.idNumber);
+            }
+        }
+        return uniqueCustomers;
+    }, [data]);
 
-    const filteredCustomers = customers.filter((c) => {
+    // Update customer count in Redux when allCustomers changes
+    useEffect(() => {
+        dispatch(setCustomerCount(allCustomers.length));
+    }, [allCustomers.length, dispatch]);
+
+    const filteredCustomers = allCustomers.filter((c) => {
         const term = search.trim().toLowerCase();
         return (
-            c.idNumber.toLowerCase().includes(term) ||
-            c.firstName.toLowerCase().includes(term) ||
-            c.lastName.toLowerCase().includes(term) ||
-            c.customerType.toLowerCase().includes(term)
+            (c.idNumber?.toLowerCase() || '').includes(term) ||
+            (c.firstName?.toLowerCase() || '').includes(term) ||
+            (c.lastName?.toLowerCase() || '').includes(term) ||
+            (c.customerType?.toLowerCase() || '').includes(term)
         );
     });
-
-  
 
     return (
         <section className="customers global-margin">
@@ -88,23 +211,29 @@ function DeleteCustomerList() {
                 </div>
 
                 <div className="customers-list">
-                    {filteredCustomers.length === 0 ? (
+                    {(isLoading) ? (
+                        <GlobalLoader/>
+                    ) : error && !isLoading ? (
+                        <GlobalError errorMessage={errorMessage}/>
+                    ) : filteredCustomers.length === 0 ? (
                         <div className="customers-no-results">
                             No results found for <strong>{search}</strong>
                         </div>
                     ) : (
-                        filteredCustomers.map((customer) => (
+                        filteredCustomers.slice(0, itemsToShow).map((customer) => (
                             <CustomerCard
-                                key={customer.idNumber}
-                                idNumber={customer.idNumber}
-                                firstName={customer.firstName}
-                                lastName={customer.lastName}
-                                customerType={customer.customerType}
+                                key={customer.userId}
+                                customer={customer}
                                 showDeleteButton={true}
                             />
                         ))
                     )}
                 </div>
+                {filteredCustomers.length > itemsToShow && (
+                    <div style={{ textAlign: 'center', margin: '20px 0' }}>
+                        <button onClick={() => setItemsToShow(prev => prev + 100)} className='btn-load-more'>Load More</button>
+                    </div>
+                )}
             </div>
         </section>
     );

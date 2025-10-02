@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 import { ChangeTheme } from '../theme/ChangeTheme';
+import { useEnable2FAMutation, useDisable2FAMutation, useGetUserProfileQuery } from '../../utils/api';
 import '../../styles/components/common/settings.scss';
 
 interface SettingsModalProps {
@@ -13,8 +16,24 @@ interface SettingsModalProps {
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, speechEnabled, onToggleSpeech }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [twoFAEnabled, setTwoFAEnabled] = useState(() => localStorage.getItem('twoFAEnabled') === 'true');
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
   const [greetingEmoji, setGreetingEmoji] = useState(() => localStorage.getItem('greetingEmoji') || '👋');
+
+  const user = useSelector((state: any) => state.user.user);
+  const [enable2FA, { isLoading }] = useEnable2FAMutation();
+  const [disable2FA] = useDisable2FAMutation();
+
+  // Fetch user profile to get twofa_enabled state
+  const { data: userProfile, isLoading: isUserProfileLoading, error: userProfileError } = useGetUserProfileQuery(user?.id ?? '', {
+    skip: !user?.id,
+  });
+
+  useEffect(() => {
+    if (userProfile && typeof userProfile.twofa_enabled === 'boolean') {
+      setTwoFAEnabled(userProfile.twofa_enabled);
+      localStorage.setItem('twoFAEnabled', userProfile.twofa_enabled.toString());
+    }
+  }, [userProfile]);
 
   useEffect(() => {
     if (isOpen) {
@@ -38,10 +57,28 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, speechEn
     return () => clearTimeout(timeout);
   };
 
-  const toggleTwoFA = () => {
+  const toggleTwoFA = async () => {
     const newState = !twoFAEnabled;
     setTwoFAEnabled(newState);
     localStorage.setItem('twoFAEnabled', newState.toString());
+
+    if (user?.id) {
+      try {
+        if (newState) {
+          await enable2FA({ userId: user.id }).unwrap();
+          toast.success('Two-Factor Authentication enabled successfully', { style: { zIndex: 10000000001 } });
+        } else {
+          await disable2FA({ userId: user.id }).unwrap();
+          toast.success('Two-Factor Authentication disabled successfully', { style: { zIndex: 10000000001 } });
+        }
+      } catch (error) {
+        // Revert toggle on failure
+        setTwoFAEnabled(!newState);
+        localStorage.setItem('twoFAEnabled', (!newState).toString());
+        toast.error(`Failed to ${newState ? 'enable' : 'disable'} Two-Factor Authentication`, { style: { zIndex: 10000000001 } });
+        console.error('Failed to toggle 2FA:', error);
+      }
+    }
   };
 
   const handleEmojiChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -67,7 +104,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, speechEn
 
         <div className="setting-item">
           <label>Color Theme</label>
-          <ChangeTheme className="change-theme-setting" />
+          <div className="change-theme-setting">
+            <ChangeTheme />
+          </div>
         </div>
 
         <div className="setting-item">

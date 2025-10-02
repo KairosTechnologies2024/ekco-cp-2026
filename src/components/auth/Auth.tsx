@@ -10,13 +10,14 @@ import { setCustomersData } from '../../store/redux/customersSlice';
 import type { RootState } from '../../store/redux';
 import { MoonLoader } from "react-spinners";
 import GreetingSplash from '../GreetingSplash';
+import { namesVerification } from '../../utils/namesVerification';
 
 function Auth() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const customers = useSelector((state: RootState) => state.customers.allCustomers);
-  const [email, setEmail] = useState('admintest@exampletest.com');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isHovered, setIsHovered] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
   const [userName, setUserName] = useState('User');
@@ -28,23 +29,16 @@ function Auth() {
   const { data: alertsData } = useGetAllAlertsQuery();
   const { data: customersData } = useGetCustomersQuery();
 
-
-
-
-
-
-
-  const controllerEmails={
-
+  const controllerEmails = {
     'Sanele': 'admin@kairostechnology.co.za',
-     'Ndabz': 'ndabenhle@kairostechnology.co.za',
-     'Wasim': 'wasim@kairostechnology.co.za',
-      'Tasvir': 'tasvirs@kairostechnology.co.za',
-      'Blessing': 'blessing@kairostechnology.co.za',
-      'Mikhail': 'mikhail@kairostechnology.co.za',
-      'Leeroy': 'leeroy@kairostechnology.co.za',
-      'Nhlamulo': 'nhlamulo@kairostechnology.co.za',
-  }
+    'Ndabz': 'ndabenhle@kairostechnology.co.za',
+    'Wasim': 'wasim@kairostechnology.co.za',
+    'Tasvir': 'tasvirs@kairostechnology.co.za',
+    'Blessing': 'blessing@kairostechnology.co.za',
+    'Mikhail': 'mikhail@kairostechnology.co.za',
+    'Leeroy': 'leeroy@kairostechnology.co.za',
+    'Nhlamulo': 'nhlamulo@kairostechnology.co.za',
+  };
 
   // Store preloaded customers data in Redux
   useEffect(() => {
@@ -134,6 +128,18 @@ function Auth() {
       return;
     }
     login({ email, password }).unwrap().then(result => {
+      if (result.otpSent) {
+        // OTP sent, navigate to OTP verification
+        toast.success('OTP sent to your email!', { duration: 3000 });
+        navigate('/otp', { state: { userId: result.userId } });
+        return;
+      }
+
+      if (!result.user || !result.accessToken || !result.refreshToken) {
+        toast.error('Invalid login response');
+        return;
+      }
+
       dispatch(setUser(result.user));
       sessionStorage.setItem('accessToken', result.accessToken);
       sessionStorage.setItem('refreshToken', result.refreshToken);
@@ -143,15 +149,7 @@ function Auth() {
         return;
       }
 
-      const firstLetter = result.user.email[0]?.toUpperCase() || 'U';
-      let userName = 'User';
-      if (firstLetter === 'A') userName = 'Sanele';
-      else if (firstLetter === 'N') userName = 'Ndabz';
-      else if (firstLetter === 'W') userName = 'Wasim';
-      else if (firstLetter === 'T') userName = 'Tasvir';
-      else if (firstLetter === 'B') userName = 'Blessing';
-      else if (firstLetter === 'M') userName = 'Mikhail';
-      else if (firstLetter === 'L') userName = 'Leeroy';
+      const userName = namesVerification(result.user.email);
 
       toast.success('Login successful!', { duration: 3000 });
 
