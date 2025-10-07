@@ -30,7 +30,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000000000;
+  z-index: 100000;
   opacity: 0;
   pointer-events: none;
   transition: background-color 0.3s ease, opacity 0.3s ease;
@@ -173,3 +173,42 @@ h2{
   margin-bottom: 1rem;
 }
 
+
+
+
+
+.two-factor-setting{
+
+  display:flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+
+ margin-top: 2rem;
+  label{
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+     margin-bottom: 1rem;
+    
+  }
+
+
+
+}
+
+
+.setting-item-container{
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+   height: 100%;
+   width:100%;
+   gap:1rem;
+
+   .toggle-switch{
+    margin-left: 2rem;
+   }
+
+
+}

@@ -2,6 +2,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import userReducer from './userSlice';
 import customersReducer from './customersSlice';
 import alertsReducer from './alertsSlice';
+import risksReducer from './risksSlice';
+import ticketsReducer from './ticketsSlice';
 import { authApi } from '../../utils/api';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -19,6 +21,8 @@ const store = configureStore({
     user: persistedUserReducer,
     customers: customersReducer,
     alerts: alertsReducer,
+    risks: risksReducer,
+    tickets: ticketsReducer,
     [authApi.reducerPath]: authApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

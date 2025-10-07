@@ -52,8 +52,18 @@ const customersSlice = createSlice({
     setCustomersData(state, action: PayloadAction<{ regularCustomers: Customer[]; fleetCustomers: Customer[] }>) {
       state.regularCustomers = action.payload.regularCustomers;
       state.fleetCustomers = action.payload.fleetCustomers;
-      state.allCustomers = [...action.payload.regularCustomers, ...action.payload.fleetCustomers];
-      state.count = state.allCustomers.length;
+      // combine and dedupe customers by idNumber so the count reflects unique customers
+      const combined = [...action.payload.regularCustomers, ...action.payload.fleetCustomers];
+      const unique: Customer[] = [];
+      const seen = new Set<string>();
+      for (const c of combined) {
+        if (c.idNumber && !seen.has(c.idNumber)) {
+          unique.push(c);
+          seen.add(c.idNumber);
+        }
+      }
+      state.allCustomers = unique;
+      state.count = unique.length;
     },
     setSelectedCustomer(state, action: PayloadAction<Customer | null>) {
       state.selectedCustomer = action.payload;

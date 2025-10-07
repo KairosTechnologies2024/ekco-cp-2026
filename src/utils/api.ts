@@ -58,6 +58,46 @@ interface Alert {
   synced: boolean;
 }
 
+interface Ticket {
+  id: number;
+  title: string;
+  type: string;
+  description: string;
+  status: 'pending' | 'resolved';
+  createdat: string;
+  updatedat: string | null;
+  customername: string;
+  customeremail: string;
+  customerphone: string;
+  loggedby: string; // Customer who created the ticket
+  resolvedby: string | null; // Support staff who resolved it
+  resolvedat?: string; // Assuming it might be added
+  user_id: number;
+  customer_id: number;
+  user_email: string;
+  user_type: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string;
+}
+
+interface RiskApi {
+  id: number;
+  title: string;
+  clientname: string;
+  clientid: string;
+  carmodel: string;
+  registration: string;
+  contactnumber: string;
+  risktype: string;
+  description: string;
+  status: string;
+  createdat: string;
+  updatedat: string;
+  loggedby: string;
+  resolvedby: string | null;
+}
+
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
@@ -70,7 +110,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Customers'],
+  tagTypes: ['Customers', 'Tickets', 'Risks'],
   endpoints: (builder) => ({
     login: builder.mutation<{ user?: any; accessToken?: string; refreshToken?: string; otpSent?: boolean; userId?: string; message?: string }, { email: string; password: string }>({
       query: (credentials) => ({
@@ -200,7 +240,69 @@ export const authApi = createApi({
         method: 'GET',
       }),
     }),
+    // Get staff users list (for super users to manage)
+    getStaffUsers: builder.query<any[], void>({
+      query: () => ({
+        url: 'staff/users',
+        method: 'GET',
+      }),
+      providesTags: ['Users'],
+    }),
+    registerCustomer: builder.mutation<{ message: string }, Partial<User>>({
+  query: (body) => ({
+    url: 'customers/register/',
+    method: 'POST',
+    body,
+      }),
+      invalidatesTags: [{ type: 'Customers', id: 'LIST' }],
+    }),
+    getTickets: builder.query<{ tickets: Ticket[] }, void>({
+      query: () => 'tickets',
+      providesTags: ['Tickets'],
+    }),
+    updateTicket: builder.mutation<Ticket, { id: number; data: Partial<Ticket> }>({
+      query: ({ id, data }) => ({
+        url: `tickets/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Tickets'],
+    }),
+    deleteTicket: builder.mutation<{ success: boolean }, number>({
+      query: (id) => ({
+        url: `tickets/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Tickets'],
+    }),
+    getRisks: builder.query<{ risks: RiskApi[] }, void>({
+      query: () => 'risks',
+      providesTags: ['Risks'],
+    }),
+    addRisk: builder.mutation<RiskApi, Partial<RiskApi>>({
+      query: (body) => ({
+        url: 'risks',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Risks'],
+    }),
+    updateRisk: builder.mutation<RiskApi, { id: number; data: Partial<RiskApi> }>({
+      query: ({ id, data }) => ({
+        url: `risks/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Risks'],
+    }),
+    deleteRisk: builder.mutation<{ success: boolean }, number>({
+      query: (id) => ({
+        url: `risks/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Risks'],
+    }),
   }),
 });
 
-export const { useLoginMutation, useVerifyOtpMutation, useRefreshTokenMutation, useResetPasswordMutation, useForgotPasswordMutation, useGetCustomersQuery, useGetCustomerQuery, useUpdateCustomerMutation, useDeleteCustomerMutation, useGetCustomerVehiclesQuery, useGetSpeedQuery, useGetIgnitionQuery, useGetGpsQuery, useGetAlertsBySerialQuery, useGetAllAlertsQuery, useMarkAlertSyncedMutation, useEnable2FAMutation, useDisable2FAMutation, useGetUserProfileQuery } = authApi;
+export const { useLoginMutation, useVerifyOtpMutation, useRefreshTokenMutation, useResetPasswordMutation, useForgotPasswordMutation, useGetCustomersQuery, useGetCustomerQuery, useUpdateCustomerMutation, useDeleteCustomerMutation, useGetCustomerVehiclesQuery, useGetSpeedQuery, useGetIgnitionQuery, useGetGpsQuery, useGetAlertsBySerialQuery, useGetAllAlertsQuery, useMarkAlertSyncedMutation, useEnable2FAMutation, useDisable2FAMutation, useGetUserProfileQuery, useRegisterCustomerMutation, useGetTicketsQuery, useUpdateTicketMutation, useDeleteTicketMutation, useGetRisksQuery, useAddRiskMutation, useUpdateRiskMutation, useDeleteRiskMutation, useGetStaffUsersQuery } = authApi;

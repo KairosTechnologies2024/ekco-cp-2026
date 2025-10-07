@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { createPortal } from 'react-dom';
 import { useBreadcrumbs } from "../../../store/context/BreadcrumbsContext";
 import "../../../styles/components/todos/risks.scss";
 import { FaPlus, FaEdit, FaCheck, FaTrash } from "react-icons/fa";
 import { IoIosSearch } from "react-icons/io";
 import RiskModal from "../../../components/todos/risks/RiskModal";
 import { Slide } from "react-awesome-reveal";
+import { useGetRisksQuery, useAddRiskMutation, useUpdateRiskMutation, useDeleteRiskMutation } from '../../../utils/api';
+import wsService from '../../../utils/websocket';
 
 interface RiskItem {
   id: string;
@@ -24,9 +27,31 @@ interface RiskItem {
 }
 
 function TodosRiskPage() {
+  const { data: risksData, isLoading, error, refetch } = useGetRisksQuery();
+  const [addRiskMutation] = useAddRiskMutation();
+  const [updateRiskMutation] = useUpdateRiskMutation();
+  const [deleteRiskMutation] = useDeleteRiskMutation();
+
+  const risks = risksData?.risks.map(r => ({
+    id: r.id.toString(),
+    title: r.title,
+    clientName: r.clientname,
+    clientId: r.clientid,
+    carModel: r.carmodel,
+    registration: r.registration,
+    contactNumber: r.contactnumber,
+    riskType: r.risktype,
+    description: r.description,
+    status: r.status as 'pending' | 'done',
+    createdAt: r.createdat,
+    updatedAt: r.updatedat,
+    loggedBy: r.loggedby,
+    resolvedBy: r.resolvedby || undefined,
+  })) || [];
+
   const [popupActive, setPopupActive] = useState(false);
 
-const riskTypes = [
+  const riskTypes = [
     'Hijacking Risk',
     'Stolen Vehicle',
     'Unit Not Updating',
@@ -37,7 +62,7 @@ const riskTypes = [
   ];
 
   const { setBreadcrumbs } = useBreadcrumbs();
-  
+
   // Dummy logged in user
   const loggedInUser = 'Wasim Shabally';
 
@@ -57,57 +82,7 @@ const riskTypes = [
     }
   }, [showResolvedPopup]);
 
-  const initialRisks: RiskItem[] = [
-    {
-      id: '1',
-      title: 'Possible Vehicle Theft',
-      clientName: 'John Smith',
-      clientId: '880301584208',
-      carModel: '2022 Toyota Fortuner',
-      registration: 'FH54YPGP',
-      contactNumber: '0823456789',
-      riskType: 'Hijacking Risk',
-      description: 'Customer reported suspicious activity around vehicle. Multiple attempts to jam remote.',
-      status: 'pending',
-      createdAt: '2023-09-04T08:00:00Z',
-      updatedAt: '2023-09-04T08:00:00Z',
-      loggedBy: loggedInUser, // Logged by the current user
-    },
-    {
-      id: '2',
-      title: 'Unit Not Responding',
-      clientName: 'Sarah Johnson',
-      clientId: '920715362514',
-      carModel: '2021 VW Golf GTI',
-      registration: 'DRT546GP',
-      contactNumber: '0761234567',
-      riskType: 'Unit Not Updating',
-      description: 'GPS unit not updating location for past 6 hours. No response from ping attempts.',
-      status: 'pending',
-      createdAt: '2023-09-03T15:30:00Z',
-      updatedAt: '2023-09-03T15:30:00Z',
-      loggedBy: loggedInUser,
-    },
-    {
-      id: '3',
-      title: 'Resolved: Fuel Cut Issue',
-      clientName: 'Michael Brown',
-      clientId: '850812459632',
-      carModel: '2020 Ford Ranger',
-      registration: 'CT789WC',
-      contactNumber: '0832145698',
-      riskType: 'Fuel Cut Not Responding',
-      description: 'Fuel cut command was not executing. Issue resolved after unit reset.',
-      status: 'done',
-      createdAt: '2023-09-02T10:15:00Z',
-      updatedAt: '2023-09-02T14:20:00Z',
-      loggedBy: loggedInUser,
-      resolvedBy: 'Alice Smith', // Resolved by Alice
-    },
-    // Add more dummy data as needed
-  ];
 
-  const [risks, setRisks] = useState<RiskItem[]>(initialRisks);
 
   useEffect(() => {
     setBreadcrumbs([
@@ -115,6 +90,18 @@ const riskTypes = [
       { label: 'Todos', path: '/dashboard/todos' },
       { label: 'Risks', path: '/dashboard/todos/risks' }
     ]);
+  }, []);
+
+  useEffect(() => {
+    const handleRisksUpdate = () => {
+      refetch();
+    };
+
+    wsService.subscribe('all_risks_update', handleRisksUpdate);
+
+    return () => {
+      wsService.unsubscribe('all_risks_update', handleRisksUpdate);
+    };
   }, []);
 
   // Handle "Mark as Done" (show popup for resolved by)
@@ -125,19 +112,20 @@ const riskTypes = [
 
   const handleDelete = (riskId: string) => {
     if (window.confirm('Are you sure you want to delete this risk?')) {
-      setRisks(prev => prev.filter(risk => risk.id !== riskId));
+      deleteRiskMutation(parseInt(riskId));
     }
   };
 
   const handleResolvedBySubmit = () => {
-    if (resolvedByName.trim()) {
-      setRisks(prev =>
-        prev.map(risk =>
-          risk.id === currentRiskId
-            ? { ...risk, status: 'done', resolvedBy: resolvedByName, updatedAt: new Date().toISOString() }
-            : risk
-        )
-      );
+    if (resolvedByName.trim() && currentRiskId) {
+      updateRiskMutation({
+        id: parseInt(currentRiskId),
+        data: ({
+          status: 'done',
+          resolvedBy: resolvedByName,
+          updatedAt: new Date().toISOString(),
+        } as any)
+      });
       setShowResolvedPopup(false); // Close the modal
       setResolvedByName(''); // Clear input
     } else {
@@ -157,26 +145,36 @@ const riskTypes = [
   const handleSubmit = (riskData: Omit<RiskItem, 'id' | 'createdAt' | 'updatedAt' | 'loggedBy'>) => {
     if (editingRisk) {
       // Update existing risk
-      setRisks(prev => prev.map(risk => 
-        risk.id === editingRisk.id 
-          ? { 
-              ...risk,
-              ...riskData,
-              updatedAt: new Date().toISOString()
-            }
-          : risk
-      ));
+      const apiData = {
+        title: riskData.title,
+        clientName: riskData.clientName,
+        clientId: riskData.clientId,
+        carModel: riskData.carModel,
+        registration: riskData.registration,
+        contactNumber: riskData.contactNumber,
+        riskType: riskData.riskType,
+        description: riskData.description,
+        status: riskData.status,
+        updatedAt: new Date().toISOString(),
+      };
+      updateRiskMutation({ id: parseInt(editingRisk.id), data: apiData as any });
     } else {
       // Add new risk
-      const newRisk: RiskItem = {
-        ...riskData,
-        id: Date.now().toString(),
+      const apiData = {
+        title: riskData.title,
+        clientName: riskData.clientName,
+        clientId: riskData.clientId,
+        carModel: riskData.carModel,
+        registration: riskData.registration,
+        contactNumber: riskData.contactNumber,
+        riskType: riskData.riskType,
+        description: riskData.description,
+        status: riskData.status,
+        loggedBy: loggedInUser,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        loggedBy: loggedInUser,
-        status: 'pending'
       };
-      setRisks(prev => [...prev, newRisk]);
+      addRiskMutation(apiData as any);
     }
     setIsModalOpen(false);
     setEditingRisk(null);
@@ -188,7 +186,7 @@ const riskTypes = [
     setIsModalOpen(true);
   };
   return (
-    <Slide direction="right">
+  
     <div className="risks-page global-margin">
       <div className="risks-header">
         <div className="search-wrapper">
@@ -207,11 +205,13 @@ const riskTypes = [
       </div>
 
       <div className="risks-container">
+        {isLoading && <div>Loading risks...</div>}
+        {error && <div>Error loading risks</div>}
         <div className="risks-list">
           {filteredRisks.map((risk) => (
             <div key={risk.id} className={`risk-card ${risk.status}`}>
               <div className="risk-header">
-                <h3>{risk.title}</h3>
+                <h3>{risk.title}  #{risk.id}</h3>
                 <span className={`risk-status ${risk.status}`}>
                   {risk.status}
                 </span>
@@ -259,10 +259,10 @@ const riskTypes = [
         </div>
       </div>
 
-      {/* Resolved By Popup */}
-      {showResolvedPopup && (
-        <div className="resolved-popup">
-          <div className={`popup-content${popupActive ? ' active' : ''}`}>
+      {/* Resolved By Popup (matches tickets modal markup/classes) */}
+      {showResolvedPopup && createPortal(
+        <div className={`resolved-popup ${popupActive ? 'active' : ''}`}>
+          <div className={`popup-content ${popupActive ? 'active' : ''}`}>
             <h3>Resolve Risk</h3>
             <label>Resolved By:</label>
             <input
@@ -272,25 +272,26 @@ const riskTypes = [
               placeholder="Enter the name of the person resolving the risk"
             />
 
-            <div className="resolved-button-group">
+            <div className="popup-actions">
               <button onClick={handleResolvedBySubmit} className="submit-btn">Submit</button>
               <button onClick={() => setShowResolvedPopup(false)} className="cancel-btn">Cancel</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {isModalOpen && (
-        <RiskModal 
+        <RiskModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           risk={editingRisk}
           riskTypes={riskTypes}
-          onSubmit={() => {}}
+          onSubmit={handleSubmit}
         />
       )}
     </div>
-    </Slide>
+ 
   );
 }
 

@@ -30,6 +30,8 @@ import LinkedDevicesPage from "./pages/devices/linked/linkeddevicespage";
 import TodosPage from "./pages/todos/todos";
 import TodosRiskPage from "./pages/todos/risks/risks";
 import TodosTicketsPage from "./pages/todos/tickets/tickets";
+import TicketNotification from "./components/TicketNotification";
+import RiskNotification from "./components/RiskNotification";
 function App() {
   const [splashVisible, setSplashVisible] = useState(true);
 
@@ -42,6 +44,8 @@ function App() {
 
   return (
     <>
+      <TicketNotification />
+      <RiskNotification/>
       <Routes>
         <Route path="/" element={<Navigate to="/auth" />} />
         <Route path="/auth" element={<Auth />} />

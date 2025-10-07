@@ -17,6 +17,7 @@ import type { RootState } from '../../store/redux';
 import ConfirmationDialog from '../common/ConfirmationDialog';
 import SettingsModal from '../common/SettingsModal';
 import wsService from '../../utils/websocket';
+import { useGetTicketsQuery, useGetRisksQuery } from '../../utils/api';
 import { setCustomersData, setCustomerCount } from '../../store/redux/customersSlice';
 import { setAlerts, type Alert as AlertModel } from '../../store/redux/alertsSlice';
 import { useGetCustomersQuery, useGetAllAlertsQuery } from '../../utils/api';
@@ -117,6 +118,16 @@ function Sidebar() {
   const customerCount = useSelector((state: RootState) => state.customers.count);
   const alerts = useSelector((state: RootState) => state.alerts.alerts);
 
+  // Live counts for Todos (tickets and risks)
+  // Poll for live counts (every 15s) so sidebar updates while user navigates
+  const { data: ticketsData } = useGetTicketsQuery(undefined, { pollingInterval: 15000 });
+  const { data: risksData } = useGetRisksQuery(undefined, { pollingInterval: 15000 });
+  const pendingTicketsCount = (ticketsData?.tickets || []).filter((t: any) => t.status === 'pending').length;
+  const pendingRisksCount = (risksData?.risks || []).filter((r: any) => r.status === 'pending').length;
+  const todosPendingSum = pendingTicketsCount + pendingRisksCount;
+  // Sidebar shows individual badges and a combined total
+  const sidebarTodosBadge = todosPendingSum;
+
 
 
   // Calculate unread count based on synced property from API
@@ -129,8 +140,20 @@ function Sidebar() {
   // Keep customers count in sync with API
   useEffect(() => {
     if (customersData) {
-      const totalCount = customersData.regularCustomers.length + customersData.fleetCustomers.length;
-      dispatch(setCustomerCount(totalCount));
+      // Deduplicate by id number so Sidebar count matches the Customers list behavior
+      const regular = customersData.regularCustomers || [];
+      const fleet = customersData.fleetCustomers || [];
+      const combined = [...regular, ...fleet];
+      const seen = new Set<string>();
+      for (const c of combined) {
+        // customersData may contain different shapes (API raw fields or normalized fields).
+        // Cast to any to safely attempt multiple property names.
+        const anyC: any = c;
+        const idNum = anyC.id_number || anyC.idNum || anyC.id_num || anyC.idNumber || '';
+        if (idNum) seen.add(String(idNum));
+      }
+      const dedupedCount = seen.size;
+      dispatch(setCustomerCount(dedupedCount));
     }
   }, [customersData, dispatch]);
 
@@ -308,9 +331,11 @@ function Sidebar() {
               <div className="sidebar-link-content">
                 <GiPaperClip size={iconSize}/>
                 <span className="sidebar-link-text">Todos</span>
-                 {notifications.devices > 0 && (
-                  <span className="sidebar-badge critical">{notifications.todos}</span>
-                )}
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <span className="sidebar-badge info" title="Pending Risks">{pendingRisksCount}</span>
+                  <span className="sidebar-badge critical" title="Pending Tickets">{pendingTicketsCount}</span>
+                  <span className="sidebar-badge primary" title="Total Todos">{sidebarTodosBadge}</span>
+                </div>
               </div>
             </Link>
           </li>

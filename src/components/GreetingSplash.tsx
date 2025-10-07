@@ -9,7 +9,9 @@ interface GreetingSplashProps {
 
 const GreetingSplash: React.FC<GreetingSplashProps> = ({ name, date, onComplete }) => {
   const [displayedText, setDisplayedText] = useState('');
-  const fullText = `Hi, ${name} 😊`;
+  // read greeting emoji from localStorage (set by SettingsModal); default to a friendly wave
+  const greetingEmoji = typeof window !== 'undefined' ? (localStorage.getItem('greetingEmoji') || '👋') : '👋';
+  const fullText = `Hi, ${name} ${greetingEmoji}`;
 
   useEffect(() => {
     let index = 0;

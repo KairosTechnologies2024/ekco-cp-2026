@@ -2,6 +2,10 @@
 @use '../../fragments/colors.scss' as *;
 
 .tickets {
+  /* make this container the positioning context for the resolved popup
+     so the popup will move with the container's scroll instead of being
+     fixed to the viewport */
+
 
 
   .tickets-header {
@@ -202,35 +206,46 @@
 
 
 
-.resolved-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000; 
-
-  .popup-content {
-    background-color: var(--background-color);
-    border-radius: 8px;
-    padding: 2rem;
-    width: 90%;
-    max-width: 400px;
-    box-sizing: border-box;
-    margin: 0;
-    max-height: 90vh;
-    overflow-y: auto;
+  .resolved-popup {
+    /* Fixed overlay so the popup stays centered in the viewport while scrolling */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Ensure it's on top */
     opacity: 0;
-    transform: scale(0.96);
-    transition: opacity 0.3s, transform 0.3s;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0s 0.25s;
 
     &.active {
       opacity: 1;
-      transform: scale(1);
+      visibility: visible;
+      transition: opacity 0.25s ease, visibility 0s 0s; /* Make it visible instantly when active */
+    }
+
+  .popup-content {
+    background-color: var(--background-color);
+    border-radius: 10px;
+    padding: 1.5rem 1.25rem;
+    width: 92%;
+    max-width: 480px;
+    box-sizing: border-box;
+    margin: 0 16px;
+    max-height: 80vh;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    transition: opacity 220ms ease, transform 220ms ease;
+
+    &.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
     }
 
       h3 {
@@ -285,6 +300,107 @@
           &:hover {
             opacity: 0.9;
           }
+        }
+      }
+    }
+  }
+}
+
+
+/* Global resolved popup (root-level) - use fixed so it stays centered in the viewport
+   even when rendered inside a transformed/animated ancestor (e.g. reveal/slide).
+*/
+.resolved-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000; /* Ensure it's on top */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s 0.25s;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease, visibility 0s 0s;
+  }
+
+  .popup-content {
+    background-color: var(--background-color);
+    border-radius: 10px;
+    padding: 1.5rem 1.25rem;
+    width: 92%;
+    max-width: 480px;
+    box-sizing: border-box;
+    margin: 0 16px;
+    max-height: 80vh;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    transition: opacity 220ms ease, transform 220ms ease;
+
+    &.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+    h3 {
+      color: var(--text-color);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+      background-color: var(--background-color);
+      color: var(--text-color);
+
+      &:focus {
+        outline: none;
+        border-color: var(--text-accent-color);
+      }
+    }
+
+    .popup-actions {
+      display: flex;
+      gap: 1rem;
+
+      button {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &.submit-btn {
+          background-color: var(--text-accent-color);
+          color: white;
+        }
+
+        &.cancel-btn {
+          background-color: #f44336;
+          color: white;
+        }
+
+        &:hover {
+          opacity: 0.9;
         }
       }
     }

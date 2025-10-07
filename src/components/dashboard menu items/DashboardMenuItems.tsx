@@ -1,38 +1,32 @@
 import { BsFuelPumpFill } from "react-icons/bs";
 import { IoIosCut } from "react-icons/io";
 import '../../styles/components/dashboard/dashboard-menu-items.scss';
-
 import { LuShieldAlert } from "react-icons/lu";
-
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import { useLocation } from "react-router-dom";
-
 import { useNavigate } from "react-router-dom";
 import { FiCpu } from "react-icons/fi";
 import { FaLinkSlash } from "react-icons/fa6";
 import { IoGitNetworkOutline } from "react-icons/io5";
 import { MdSupportAgent } from "react-icons/md";
 import { TiWarningOutline } from "react-icons/ti";
-
 import { Fade } from "react-awesome-reveal";
+import { useGetTicketsQuery, useGetRisksQuery } from '../../utils/api';
+
 function DashboardMenuItems() {
-   
+  const pathname = useLocation().pathname;
+  const router = useNavigate();
 
-  const pathname=  useLocation().pathname;
-const riskCount = 5;     
-const ticketCount = 12;
+  // Poll while on the Todos page so badges stay live
+  const { data: risksData } = useGetRisksQuery(undefined, { pollingInterval: 15000 });
+  const { data: ticketsData } = useGetTicketsQuery(undefined, { pollingInterval: 15000 });
 
-    const router= useNavigate();
+  const riskCount = (risksData?.risks || []).filter((r: any) => r.status === 'pending').length;
+  const ticketCount = (ticketsData?.tickets || []).filter((t: any) => t.status === 'pending').length || 0;
+
   return (
-
     <div className="dashboard-menu">
       <div className="dashboard-actions">
-      
-      
-      
-
-   
-      
         {pathname === '/dashboard/fuel-cuts' && (
           <>
             <div
@@ -54,8 +48,7 @@ const ticketCount = 12;
           </>
         )}
 
-
-          {pathname === '/dashboard/devices' && (
+        {pathname === '/dashboard/devices' && (
           <>
             <div
               className="dashboard-menu-card"
@@ -84,39 +77,29 @@ const ticketCount = 12;
           </>
         )}
 
+        {pathname === '/dashboard/todos' && (
+          <>
+            <div className="dashboard-menu-card" onClick={() => router('/dashboard/todos/risks')}>
+              <div className="icon-badge-wrapper">
+                <TiWarningOutline size={35} />
+                <span className="count-badge">{riskCount}</span>
+              </div>
+              <h3>Risks</h3>
+              <p>View urgent issues logged by you or other controllers</p>
+            </div>
 
-
-{pathname === '/dashboard/todos' && (
-  <>
-    <div className="dashboard-menu-card" onClick={() => router('/dashboard/todos/risks')}>
-  <div className="icon-badge-wrapper">
-    <TiWarningOutline size={35} />
-    {riskCount > 0 && <span className="count-badge">{riskCount}</span>}
-  </div>
-  <h3>Risks</h3>
-  <p>View urgent issues logged by you or other controllers</p>
-</div>
-
-<div className="dashboard-menu-card" onClick={() => router('/dashboard/todos/tickets')}>
-  <div className="icon-badge-wrapper">
-    <MdSupportAgent size={35} />
-    {ticketCount > 0 && <span className="count-badge">{ticketCount}</span>}
-  </div>
-  <h3>Tickets</h3>
-  <p>View and attend to tickets logged by clients</p>
-</div>
-  </>
-)}
-
-
-
-
-
-
+            <div className="dashboard-menu-card" onClick={() => router('/dashboard/todos/tickets')}>
+              <div className="icon-badge-wrapper">
+                <MdSupportAgent size={35} />
+                <span className="count-badge">{ticketCount}</span>
+              </div>
+              <h3>Tickets</h3>
+              <p>View and attend to tickets logged by clients</p>
+            </div>
+          </>
+        )}
       </div>
     </div>
-    
-
   );
 }
 

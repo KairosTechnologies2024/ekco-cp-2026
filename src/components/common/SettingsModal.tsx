@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { ChangeTheme } from '../theme/ChangeTheme';
-import { useEnable2FAMutation, useDisable2FAMutation, useGetUserProfileQuery } from '../../utils/api';
+import { useEnable2FAMutation, useDisable2FAMutation, useGetUserProfileQuery, useGetStaffUsersQuery } from '../../utils/api';
+import { namesVerification } from '../../utils/namesVerification';
 import '../../styles/components/common/settings.scss';
 
 interface SettingsModalProps {
@@ -17,14 +18,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, speechEn
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
-  const [greetingEmoji, setGreetingEmoji] = useState(() => localStorage.getItem('greetingEmoji') || '👋');
+  const [greetingEmoji, setGreetingEmoji] = useState('👋');
 
   const user = useSelector((state: any) => state.user.user);
-  const [enable2FA, { isLoading }] = useEnable2FAMutation();
+  const [enable2FA] = useEnable2FAMutation();
   const [disable2FA] = useDisable2FAMutation();
+  const { data: staffUsers } = useGetStaffUsersQuery(undefined, { skip: !user?.id });
 
   // Fetch user profile to get twofa_enabled state
-  const { data: userProfile, isLoading: isUserProfileLoading, error: userProfileError } = useGetUserProfileQuery(user?.id ?? '', {
+  const { data: userProfile } = useGetUserProfileQuery(user?.id ?? '', {
     skip: !user?.id,
   });
 
@@ -34,6 +36,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, speechEn
       localStorage.setItem('twoFAEnabled', userProfile.twofa_enabled.toString());
     }
   }, [userProfile]);
+
+  // Helper to toggle 2FA for arbitrary staff user (super only)
+  const toggleStaffTwoFA = async (targetUserId: string, enable: boolean) => {
+    try {
+      if (enable) {
+        await enable2FA({ userId: targetUserId }).unwrap();
+        toast.success('Two-Factor Authentication enabled', { style: { zIndex: 10000000001 } });
+      } else {
+        await disable2FA({ userId: targetUserId }).unwrap();
+        toast.success('Two-Factor Authentication disabled', { style: { zIndex: 10000000001 } });
+      }
+    } catch (error) {
+      toast.error('Failed to update 2FA for user', { style: { zIndex: 10000000001 } });
+      console.error('Failed toggling 2FA for user:', error);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -109,13 +127,55 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, speechEn
           </div>
         </div>
 
-        <div className="setting-item">
-          <label>Two-Factor Authentication</label>
-          <label className="toggle-switch">
-            <input type="checkbox" checked={twoFAEnabled} onChange={toggleTwoFA} />
-            <span className="slider"></span>
-          </label>
-        </div>
+        {/* Two-Factor section: only visible to super users; super users can toggle for themselves and other staff */}
+        {user?.user_type === 'super' && (
+          <div className="setting-item two-factor-setting">
+            <label>Two-Factor Authentication (Manage users)</label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+                <div className="setting-item-container">
+                <div>
+                  <strong>Your account</strong>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{user?.email}</div>
+                </div>
+                <label className="toggle-switch">
+                  <input type="checkbox" checked={twoFAEnabled} onChange={toggleTwoFA} />
+                  <span className="slider"></span>
+                </label>
+              </div>
+</div>
+           
+                <strong>Staff users</strong>
+                   <div className="setting-item-container">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+                  {staffUsers && staffUsers.length > 0 ? (
+                    // Filter out current user from staff list (their account is managed above)
+                    staffUsers
+                      .filter((s: any) => String(s.email).toLowerCase() !== String(user?.email).toLowerCase())
+                      .map((s: any) => {
+                        const displayName = namesVerification(s.email || `${s.first_name || ''}`);
+                        return (
+                          <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                              <div>{displayName}</div>
+                              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{s.email}</div>
+                            </div>
+                            <label className="toggle-switch">
+                              <input type="checkbox" checked={Boolean(s.twofa_enabled)} onChange={(e) => toggleStaffTwoFA(String(s.id), e.target.checked)} />
+                              <span className="slider"></span>
+                            </label>
+                          </div>
+                        );
+                      })
+                  ) : (
+                    <div style={{ color: 'var(--text-muted)' }}>No staff users found</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="setting-item">
           <label>Greeting Emoji</label>

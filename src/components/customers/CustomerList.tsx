@@ -8,7 +8,7 @@ import { useBreadcrumbs } from '../../store/context/BreadcrumbsContext';
 import { useGetCustomersQuery } from '../../utils/api';
 import { MoonLoader } from 'react-spinners';
 import { useDispatch } from 'react-redux';
-import { setCustomerCount, setCustomersData } from '../../store/redux/customersSlice';
+import { setCustomersData } from '../../store/redux/customersSlice';
 import GlobalLoader from '../global loader/GlobalLoader';
 import GlobalError from '../global error/GlobalError';
 
@@ -175,9 +175,8 @@ function CustomerList() {
   }, [data]);
 
   // Update customer count in Redux when allCustomers changes
-  useEffect(() => {
-    dispatch(setCustomerCount(allCustomers.length));
-  }, [allCustomers.length, dispatch]);
+  // NOTE: customer count is updated by setCustomersData reducer which
+  // dedupes and sets the count, so we no longer need to dispatch setCustomerCount here.
 
   // Memoize filtered customers to avoid unnecessary recalculations
   const filteredCustomers = useMemo(() => {

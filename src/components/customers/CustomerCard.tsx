@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { setSelectedCustomer } from '../../store/redux/customersSlice';
 import { useDeleteCustomerMutation } from '../../utils/api';
 import ConfirmationDialog from '../common/ConfirmationDialog';
+import PinDialog from '../common/PinDialog';
 import toast from 'react-hot-toast';
 
 type Customer = {

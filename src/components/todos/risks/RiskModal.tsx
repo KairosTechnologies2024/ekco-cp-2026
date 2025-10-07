@@ -3,6 +3,23 @@ import { createPortal } from 'react-dom';
 import { IoMdClose } from 'react-icons/io';
 import '../../../styles/components/todos/risk-modal.scss';
 
+interface RiskItem {
+  id: string;
+  title: string;
+  clientName: string;
+  clientId: string;
+  carModel: string;
+  registration: string;
+  contactNumber: string;
+  riskType: string;
+  description: string;
+  status: 'pending' | 'done';
+  createdAt: string;
+  updatedAt: string;
+  loggedBy: string;
+  resolvedBy?: string;
+}
+
 interface RiskModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,7 +38,7 @@ function RiskModal({ isOpen, onClose, risk, riskTypes, onSubmit }: RiskModalProp
     contactNumber: '',
     riskType: '',
     description: '',
-    status: 'pending' as const
+    status: 'pending' as 'pending' | 'done'
   });
 
   const [isActive, setIsActive] = useState(false);
@@ -40,6 +57,18 @@ function RiskModal({ isOpen, onClose, risk, riskTypes, onSubmit }: RiskModalProp
           riskType: risk.riskType,
           description: risk.description,
           status: risk.status
+        });
+      } else {
+        setFormData({
+          title: '',
+          clientName: '',
+          clientId: '',
+          carModel: '',
+          registration: '',
+          contactNumber: '',
+          riskType: '',
+          description: '',
+          status: 'pending'
         });
       }
     } else {

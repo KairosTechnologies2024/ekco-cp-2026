@@ -28,7 +28,7 @@ class GlobalError extends React.Component<Props, ErrorBoundaryState> {
   render() {
     if (this.state.hasError || !this.props.children) {
       return (
-        <div style={{display:'flex', justifyContent:'center', alignItems:'center',     height: '60vh'}}>
+        <div style={{display:'flex', justifyContent:'center', alignItems:'center',     height: '60vh', width: '100vw'}}>
           <p>{this.props.errorMessage}</p>
         </div>
       );

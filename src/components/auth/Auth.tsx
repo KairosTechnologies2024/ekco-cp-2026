@@ -144,7 +144,7 @@ function Auth() {
       sessionStorage.setItem('accessToken', result.accessToken);
       sessionStorage.setItem('refreshToken', result.refreshToken);
 
-      if(result.user.user_type !== 'admin' && result.user.user_type !== 'controller') {
+      if(result.user.user_type !== 'admin' && result.user.user_type !== 'controller' && result.user.user_type !== 'super') {
         toast.error('Access denied. Admins & Controllers only.');
         return;
       }
