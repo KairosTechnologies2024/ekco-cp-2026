@@ -4,7 +4,7 @@ import customersReducer from './customersSlice';
 import alertsReducer from './alertsSlice';
 import risksReducer from './risksSlice';
 import ticketsReducer from './ticketsSlice';
-import { authApi } from '../../utils/api';
+import { authApi, publicApi } from '../../utils/api';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -24,9 +24,10 @@ const store = configureStore({
     risks: risksReducer,
     tickets: ticketsReducer,
     [authApi.reducerPath]: authApi.reducer,
+    [publicApi.reducerPath]: publicApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({serializableCheck: false}).concat(authApi.middleware),
+    getDefaultMiddleware({serializableCheck: false}).concat(authApi.middleware).concat(publicApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

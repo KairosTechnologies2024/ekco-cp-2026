@@ -50,7 +50,7 @@ function CustomerProfilePage() {
       <section className="customer-profile-page global-margin">
         <CustomerProfileCard />
         <CustomerVehicleCard userId={id || ''} />
-        <CustomerAddVehicleCard />
+        <CustomerAddVehicleCard userId={id || ''} />
       </section>
     </GlobalError>
   );

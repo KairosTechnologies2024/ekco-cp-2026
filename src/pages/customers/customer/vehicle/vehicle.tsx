@@ -62,13 +62,13 @@ function CustomerVehiclePage() {
     };
   }, [vehicle]);
 
-  if (vehiclesLoading || customerLoading || vehiclesError || customerError) return <GlobalError/>;
+  if (vehiclesLoading || customerLoading || vehiclesError || customerError) return <GlobalError errorMessage={errorMessage} />;
 
 
   return (
     <GlobalError errorMessage={errorMessage}>
       <section className="customer-vehicle-page global-margin">
-        <CustomerVehileLocation serialNumber={vehicle?.device_serial || ''} />
+        <CustomerVehileLocation serialNumber={vehicle?.device_serial || ''} latitude={vehicleLocation?.latitude} longitude={vehicleLocation?.longitude} vehicleName={`${vehicle?.make ? vehicle.make + ' ' : ''}${vehicle?.vehicle_model}`} />
         <CustomerVehicleDetailsCard vehicle={vehicle} />
         {/* Optionally pass vehicleLocation to components if needed */}
       </section>

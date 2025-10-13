@@ -176,7 +176,7 @@ export const authApi = createApi({
       }),
       invalidatesTags: [{ type: 'Customers', id: 'LIST' }, { type: 'Customers', id: 'SINGLE' }],
     }),
-    getCustomerVehicles: builder.query<{ vehicles: Array<{ id: string; make: string; vehicle_model: string; year: string; package: string; device_serial: string }> }, string>({
+    getCustomerVehicles: builder.query<{ vehicles: Array<{ id: string; make: string; vehicle_model: string; year: string; package: string; device_serial: string; vehicle_plate: string }> }, string>({
       query: (userId) => ({
         url: `customers/vehicles/${userId}`,
         method: 'GET',
@@ -305,4 +305,21 @@ export const authApi = createApi({
   }),
 });
 
+export const publicApi = createApi({
+  reducerPath: 'publicApi',
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'http://localhost:3003/api',
+  }),
+  endpoints: (builder) => ({
+    getGpsPublic: builder.query<{ gps_data: Array<{ latitude: number; longitude: number; address: string }> }, string>({
+      query: (serialNumber) => ({
+        url: `customers/gps/${serialNumber}`,
+        method: 'GET',
+      }),
+    }),
+  }),
+});
+
 export const { useLoginMutation, useVerifyOtpMutation, useRefreshTokenMutation, useResetPasswordMutation, useForgotPasswordMutation, useGetCustomersQuery, useGetCustomerQuery, useUpdateCustomerMutation, useDeleteCustomerMutation, useGetCustomerVehiclesQuery, useGetSpeedQuery, useGetIgnitionQuery, useGetGpsQuery, useGetAlertsBySerialQuery, useGetAllAlertsQuery, useMarkAlertSyncedMutation, useEnable2FAMutation, useDisable2FAMutation, useGetUserProfileQuery, useRegisterCustomerMutation, useGetTicketsQuery, useUpdateTicketMutation, useDeleteTicketMutation, useGetRisksQuery, useAddRiskMutation, useUpdateRiskMutation, useDeleteRiskMutation, useGetStaffUsersQuery } = authApi;
+
+export const { useGetGpsPublicQuery } = publicApi;

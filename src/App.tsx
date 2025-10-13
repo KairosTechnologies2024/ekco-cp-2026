@@ -32,6 +32,7 @@ import TodosRiskPage from "./pages/todos/risks/risks";
 import TodosTicketsPage from "./pages/todos/tickets/tickets";
 import TicketNotification from "./components/TicketNotification";
 import RiskNotification from "./components/RiskNotification";
+import TrackingPage from "./pages/tracking/TrackingPage";
 function App() {
   const [splashVisible, setSplashVisible] = useState(true);
 
@@ -52,6 +53,7 @@ function App() {
         <Route path="/otp" element={<OtpVerification />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/tracking" element={<TrackingPage />} />
         <Route path="/dashboard" element={<Navigate to="/dashboard/alerts" />} />
         <Route
           path="/dashboard"

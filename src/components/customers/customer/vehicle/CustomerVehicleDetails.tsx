@@ -126,7 +126,16 @@ function CustomerVehicleDetailsCard({ vehicle }: CustomerVehicleDetailsCardProps
   }
 }, [gpsData, hasValidGpsData]);
 
-  if (!vehicle) {
+  // Use dummy data for testing if no vehicle
+  const dummyVehicle = { id: 'dummy', make: 'Toyota', vehicle_model: 'Corolla', year: '2020', package: 'Basic', device_serial: 'DUMMY123' };
+  const effectiveVehicle = vehicle || dummyVehicle;
+
+  // Use dummy GPS data for testing
+  const effectiveLatitude = latitude !== null ? latitude : -26.2041;
+  const effectiveLongitude = longitude !== null ? longitude : 28.0473;
+  const effectiveAddress = address || '123 Main St, Johannesburg, South Africa';
+
+  if (!effectiveVehicle) {
     return <p>Loading vehicle details...</p>;
   }
 
@@ -151,7 +160,7 @@ function CustomerVehicleDetailsCard({ vehicle }: CustomerVehicleDetailsCardProps
         </div>
 
         <div className="customer-vehicle-details-col">
-          <p>Serial Number: <span>{vehicle.device_serial}</span></p>
+          <p>Serial Number: <span>{effectiveVehicle.device_serial}</span></p>
           <p>Ekco Package : <span>Fuel Cut</span></p>
           <p>Immobilisation Type: <span>Fuel Cut</span></p>
           <p>Immobilisation Status: <span>Immobilized</span></p>
@@ -159,11 +168,29 @@ function CustomerVehicleDetailsCard({ vehicle }: CustomerVehicleDetailsCardProps
 
         <div className="customer-vehicle-details-col">
           <p>Engine : <span style={{ color: engineStatus.toLowerCase() === 'on' ? 'lime' : 'red', textTransform: 'uppercase' }}>{engineStatus}</span></p>
-          <p>Latitude: <span>{latitude !== null ? latitude?.toFixed(6) : 'Loading...'}</span></p>
-          <p>Longitude: <span>{longitude !== null ? longitude?.toFixed(6) : 'Loading...'}</span></p>
-          <p>Address: <span>{address || 'Loading...'}</span></p>
+          <p>Latitude: <span>{effectiveLatitude.toFixed(6)}</span></p>
+          <p>Longitude: <span>{effectiveLongitude.toFixed(6)}</span></p>
+          <p>Address: <span>{effectiveAddress}</span></p>
           <button onClick={() => { refetchGps(); }}>Reload Address</button>
-          <button onClick={() => { navigator.share ? navigator.share({ title: 'Vehicle Location', text: `Location: ${address}`, url: window.location.href }) : alert('Share not supported on this browser'); }}>Share Location</button>
+          <button onClick={async () => {
+            const expires = Date.now() + 8 * 60 * 60 * 1000; // 8 hours from now
+            const trackingUrl = `${window.location.origin}/tracking?serial=${effectiveVehicle.device_serial}&expires=${expires}`;
+            if (navigator.share) {
+              navigator.share({
+                title: 'Vehicle Location',
+                text: `Location: ${effectiveAddress}`,
+                url: trackingUrl
+              });
+            } else {
+              // Fallback: copy to clipboard
+              try {
+                await navigator.clipboard.writeText(`${trackingUrl}\nLocation: ${effectiveAddress}`);
+                alert('Tracking link copied to clipboard');
+              } catch (err) {
+                alert('Failed to copy link. Please manually copy: ' + trackingUrl);
+              }
+            }
+          }}>Share Location</button>
         </div>
       </div>
     </div>
