@@ -13,40 +13,62 @@ interface CustomerVehileLocationProps {
 }
 
 function Map({ center, zoom, vehicleName, serialNumber, fuelCutStatus, deviceHealthStatus }: { center: any; zoom: number; vehicleName?: string; serialNumber: string; fuelCutStatus: string; deviceHealthStatus: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+  const infoWindowRef = useRef<any>(null);
 
   useEffect(() => {
-    if (ref.current && (window as any).google) {
-      const map = new (window as any).google.maps.Map(ref.current, {
+    if (!mapRef.current || !(window as any).google) return;
+
+    // Initialize map only once
+    if (!mapInstanceRef.current) {
+      mapInstanceRef.current = new (window as any).google.maps.Map(mapRef.current, {
         center,
         zoom,
       });
 
-      const marker = new (window as any).google.maps.Marker({
+      markerRef.current = new (window as any).google.maps.Marker({
         position: center,
-        map,
+        map: mapInstanceRef.current,
       });
 
-      const infoWindow = new (window as any).google.maps.InfoWindow({
+      infoWindowRef.current = new (window as any).google.maps.InfoWindow({
         content: `<div style="background-color: black; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
-                    <div><strong>${vehicleName}</strong></div>
-                    <div>Serial: ${serialNumber}</div>
-                    <div>Fuel Cut Status: ${fuelCutStatus}</div>
-                    <div>Device Health: ${deviceHealthStatus}</div>
-                  </div><style>.gm-style-iw + div { display: none !important; }</style>`,
+                  <div><strong>${vehicleName}</strong></div>
+                  <div>Serial: ${serialNumber}</div>
+                  <div>Fuel Cut Status: ${fuelCutStatus}</div>
+                  <div>Device Health: ${deviceHealthStatus}</div>
+                </div><style>.gm-style-iw + div { display: none !important; }</style>`,
       });
 
-      marker.addListener('mouseover', () => {
-        infoWindow.open(map, marker);
+      markerRef.current.addListener('mouseover', () => {
+        infoWindowRef.current.open(mapInstanceRef.current, markerRef.current);
       });
 
-      marker.addListener('mouseout', () => {
-        infoWindow.close();
+      markerRef.current.addListener('mouseout', () => {
+        infoWindowRef.current.close();
       });
+    }
+
+    // Update marker position when center changes
+    if (markerRef.current && center) {
+      markerRef.current.setPosition(center);
+      mapInstanceRef.current.panTo(center);
+    }
+
+    // Update info window content when other props change
+    if (infoWindowRef.current) {
+      infoWindowRef.current.setContent(`<div style="background-color: black; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
+                                        <div><strong>${vehicleName}</strong></div>
+                                        <div>Serial: ${serialNumber}</div>
+                                        <div>Fuel Cut Status: ${fuelCutStatus}</div>
+                                        <div>Device Health: ${deviceHealthStatus}</div>
+                                      </div><style>.gm-style-iw + div { display: none !important; }</style>`);
     }
   }, [center, zoom, vehicleName, serialNumber, fuelCutStatus, deviceHealthStatus]);
 
-  return <div ref={ref} style={{ height: '250px', width: '600px', borderRadius: '8px' }} />;
+  return <div ref={mapRef} style={{ height: '250px', width: '600px', borderRadius: '8px' }} />;
 }
 
 function CustomerVehileLocation({ serialNumber, latitude, longitude, vehicleName }: CustomerVehileLocationProps) {
@@ -85,19 +107,11 @@ function CustomerVehileLocation({ serialNumber, latitude, longitude, vehicleName
     // Subscribe to alert updates
     wsService.subscribe('alert_update', handleAlertUpdate);
 
-
-
-
-
     // Cleanup on unmount
     return () => {
       wsService.unsubscribe('alert_update', handleAlertUpdate);
     };
   }, [serialNumber]);
-
-  
-  
-  console.log('wsService:', wsService);
 
   if (isLoading) return <p>Loading alerts...</p>;
   if (error) throw new Error('Error loading alerts');
@@ -105,7 +119,6 @@ function CustomerVehileLocation({ serialNumber, latitude, longitude, vehicleName
   const apiAlerts = data?.alerts || [];
   // Combine API alerts with real-time alerts
   const allAlerts = [...realtimeAlerts, ...apiAlerts];
-  console.log('All Alerts Data:', allAlerts);
 
   // Generate unique alert types dynamically, stripping " !" and " detected" at the end
   const uniqueAlertTypes = Array.from(new Set(allAlerts.map((alert: any) => alert.message || alert.alert.replace(/ !$/g, '').replace(/ detected$/g, '')))).sort();
@@ -125,7 +138,14 @@ function CustomerVehileLocation({ serialNumber, latitude, longitude, vehicleName
     <div className="customer-vehicle-location-card">
       <div className="customer-vehicle-map-container">
         <Wrapper apiKey='AIzaSyD8uGqzqokt3i354ZgBZoZb5TywYwhGG_E'>
-          <Map center={latitude && longitude ? { lat: latitude, lng: longitude } : { lat: -26.2041, lng: 28.0473 }} zoom={13} vehicleName={vehicleName} serialNumber={serialNumber} fuelCutStatus={fuelCutStatus} deviceHealthStatus={deviceHealthStatus} />
+          <Map 
+            center={latitude && longitude ? { lat: latitude, lng: longitude } : { lat: -26.2041, lng: 28.0473 }} 
+            zoom={13} 
+            vehicleName={vehicleName} 
+            serialNumber={serialNumber} 
+            fuelCutStatus={fuelCutStatus} 
+            deviceHealthStatus={deviceHealthStatus} 
+          />
         </Wrapper>
       </div>
 

@@ -64,23 +64,22 @@ function CustomerVehicleDetailsCard({ vehicle }: CustomerVehicleDetailsCardProps
       }
     };
 
- const handleGpsUpdate = (data: any[]) => {
+const handleGpsUpdate = async (data: any[]) => {
   console.log('WebSocket GPS Update:', data);
   const gpsEntry = data.find(entry => entry.device_serial === vehicle.device_serial);
 
   if (gpsEntry) {
-    // Check if the coordinates are valid before updating
     if (gpsEntry.latitude !== null && gpsEntry.longitude !== null) {
       setLatitude(gpsEntry.latitude);
       setLongitude(gpsEntry.longitude);
-      setAddress(gpsEntry.address || '');
-      setHasValidGpsData(true); // Flag that we have received valid GPS data
+      // Get address from coordinates
+      const address = await reverseGeocode(gpsEntry.latitude, gpsEntry.longitude);
+      setAddress(address);
+      setHasValidGpsData(true);
     } else {
-      // Do not set the flag or update state with invalid data
       console.warn('WebSocket GPS update received with null coordinates for this vehicle.');
     }
   } else {
-    // If no entry is found for the vehicle, do not set the flag
     console.warn('WebSocket GPS update received, but no entry found for this vehicle.');
   }
 };
@@ -108,7 +107,8 @@ function CustomerVehicleDetailsCard({ vehicle }: CustomerVehicleDetailsCardProps
     }
   }, [ignitionData, wsIgnitionReceived]);
 
- useEffect(() => {
+ // Update the useEffect for GPS data handling:
+useEffect(() => {
   console.log('API GPS Data:', gpsData?.gps_data?.[0]);
   console.log('hasValidGpsData:', hasValidGpsData);
 
@@ -122,10 +122,12 @@ function CustomerVehicleDetailsCard({ vehicle }: CustomerVehicleDetailsCardProps
   ) {
     setLatitude(gps.latitude);
     setLongitude(gps.longitude);
-    setAddress(gps.address || '');
+    // Get address from coordinates
+    reverseGeocode(gps.latitude, gps.longitude).then(address => {
+      setAddress(address);
+    });
   }
 }, [gpsData, hasValidGpsData]);
-
   // Use dummy data for testing if no vehicle
   const dummyVehicle = { id: 'dummy', make: 'Toyota', vehicle_model: 'Corolla', year: '2020', package: 'Basic', device_serial: 'DUMMY123' };
   const effectiveVehicle = vehicle || dummyVehicle;
@@ -143,6 +145,52 @@ function CustomerVehicleDetailsCard({ vehicle }: CustomerVehicleDetailsCardProps
   console.log('Speed Data:', speedData?.speed_data?.[0]?.speed);
   console.log('Ignition Data:', ignitionData?.ignition_data?.[0]?.ignition_status);
   console.log('GPS Data:', gpsData?.gps_data?.[0]?.latitude);
+
+
+
+
+const reverseGeocode = async (lat: number, lon: number): Promise<string> => {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+    );
+    const data = await response.json();
+    return data.display_name || 'Address not found';
+  } catch (error) {
+    console.error('Error fetching address:', error);
+    return 'Error fetching address';
+  }
+};
+
+
+
+// Add this helper function at the top of the component
+const formatAddress = (address: string) => {
+  if (!address) return '';
+  const maxLength = 40; // Adjust this value based on your UI needs
+  if (address.length <= maxLength) return address;
+  
+  // Try to split at commas first
+  const parts = address.split(',');
+  const lines: string[] = [];
+  let currentLine = '';
+  
+  parts.forEach(part => {
+    const trimmedPart = part.trim();
+    if ((currentLine + ', ' + trimmedPart).length <= maxLength) {
+      currentLine = currentLine ? `${currentLine}, ${trimmedPart}` : trimmedPart;
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = trimmedPart;
+    }
+  });
+  
+  if (currentLine) lines.push(currentLine);
+  return lines.join('\n');
+};
+
+// Update the address display in the JSX
+
   return (
     <div className="customer-vehicle-details-card">
       <div className="customer-vehicle-details-card-container">
@@ -170,7 +218,9 @@ function CustomerVehicleDetailsCard({ vehicle }: CustomerVehicleDetailsCardProps
           <p>Engine : <span style={{ color: engineStatus.toLowerCase() === 'on' ? 'lime' : 'red', textTransform: 'uppercase' }}>{engineStatus}</span></p>
           <p>Latitude: <span>{effectiveLatitude.toFixed(6)}</span></p>
           <p>Longitude: <span>{effectiveLongitude.toFixed(6)}</span></p>
-          <p>Address: <span>{effectiveAddress}</span></p>
+         <p>Address: <span style={{ whiteSpace: 'pre-line' }}>{formatAddress(effectiveAddress)}</span></p>
+
+
           <button onClick={() => { refetchGps(); }}>Reload Address</button>
           <button onClick={async () => {
             const expires = Date.now() + 8 * 60 * 60 * 1000; // 8 hours from now

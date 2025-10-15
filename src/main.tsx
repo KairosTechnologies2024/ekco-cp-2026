@@ -12,6 +12,7 @@ import store, { persistor } from './store/redux/index.ts';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Toaster } from 'react-hot-toast';
 import RiskNotification from './components/RiskNotification';
+import 'leaflet/dist/leaflet.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
